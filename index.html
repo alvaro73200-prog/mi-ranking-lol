@@ -7,58 +7,61 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
         :root {
-            --bg: #09090c;
+            --bg: #060608;
             --card: #121217;
-            --border: #25262d;
-            --text: #f0e6d2;
-            /* Colores de Rangos */
-            --oro: #f1c40f;
-            --esmeralda: #2ecc71;
-            --diamante: #3498db;
+            --accent: #00cfbc;
+            --gold: #f0e6d2;
             --master: #ff79c6;
+            --diamante: #3498db;
+            --esmeralda: #2ecc71;
+            --oro: #f1c40f;
         }
 
         body {
             background-color: var(--bg);
-            color: var(--text);
+            color: white;
             font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px 20px;
+            padding: 30px 10px;
         }
+
+        h1 { color: var(--gold); letter-spacing: 5px; text-transform: uppercase; font-size: 22px; }
 
         .leaderboard-card {
             background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 4px;
+            border: 1px solid #25262d;
+            border-radius: 8px;
             width: 100%;
-            max-width: 800px;
-            padding: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 950px;
+            overflow-x: auto;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
         }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; color: #a0a0a8; font-size: 11px; text-transform: uppercase; padding: 15px; border-bottom: 1px solid var(--border); }
-        td { padding: 15px; border-bottom: 1px solid #1e1f24; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { text-align: left; color: #a0a0a8; font-size: 10px; text-transform: uppercase; padding: 20px 15px; border-bottom: 1px solid #25262d; }
+        td { padding: 18px 15px; border-bottom: 1px solid #1e1f24; font-size: 14px; }
 
-        /* Lógica de colores por clase */
         .rank-tag {
-            padding: 4px 10px;
-            border-radius: 2px;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-            border: 1px solid rgba(255,255,255,0.1);
+            padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold;
+            text-transform: uppercase; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .rank-master { color: var(--master); border-color: var(--master); box-shadow: 0 0 10px rgba(255,121,198,0.2); }
+        .rank-diamante { color: var(--diamante); border-color: var(--diamante); }
+        .rank-esmeralda { color: var(--esmeralda); border-color: var(--esmeralda); }
+        .rank-oro { color: var(--oro); border-color: var(--oro); }
+
+        .lp-text { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 16px; }
+        .winrate { font-size: 12px; color: #888; }
+        .kda-box { font-weight: bold; color: #eee; }
+        .live-status { font-size: 12px; font-weight: bold; color: #ff4e50; animation: pulse 2s infinite; }
+        
+        @keyframes pulse { 
+            0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; }
         }
 
-        .rank-oro { color: var(--oro); border-color: var(--oro); }
-        .rank-esmeralda { color: var(--esmeralda); border-color: var(--esmeralda); }
-        .rank-diamante { color: var(--diamante); border-color: var(--diamante); }
-        .rank-master { color: var(--master); border-color: var(--master); }
-        .rank-default { color: #888; border-color: #444; }
-
-        .lp-text { color: #00cfbc; font-weight: bold; font-family: monospace; }
+        .fire-streak { filter: drop-shadow(0 0 5px orange); }
     </style>
 </head>
 <body>
@@ -71,12 +74,14 @@
                 <tr>
                     <th>#</th>
                     <th>Invocador</th>
-                    <th>Rango</th>
-                    <th>Puntuación</th>
+                    <th>Rango / LP</th>
+                    <th>W/L (WR%)</th>
+                    <th>KDA (5 Last)</th>
+                    <th>Estado</th>
                 </tr>
             </thead>
             <tbody id="table-content">
-                <tr><td colspan="4" style="text-align:center; padding:40px;">Sincronizando...</td></tr>
+                <tr><td colspan="6" style="text-align:center; padding:50px; color:#555;">Sincronizando con la API de Riot...</td></tr>
             </tbody>
         </table>
     </div>
@@ -86,12 +91,10 @@
 
         function loadData() {
             Papa.parse(csvUrl, {
-                download: true,
-                header: false,
+                download: true, header: true, skipEmptyLines: true,
                 complete: function(results) {
-                    const players = results.data.slice(1).filter(r => r[0]);
-                    players.sort((a, b) => parseInt(b[2] || 0) - parseInt(a[2] || 0));
-                    render(players);
+                    const sorted = results.data.sort((a,b) => parseInt(b.LP || 0) - parseInt(a.LP || 0));
+                    render(sorted);
                 }
             });
         }
@@ -101,27 +104,35 @@
             let html = '';
 
             players.forEach((p, i) => {
-                const rangoOriginal = p[1] ? p[1].toLowerCase() : '';
-                let colorClass = 'rank-default';
-
-                // Asignación de colores
-                if (rangoOriginal.includes('oro')) colorClass = 'rank-oro';
-                else if (rangoOriginal.includes('esmeralda')) colorClass = 'rank-esmeralda';
-                else if (rangoOriginal.includes('diamante')) colorClass = 'rank-diamante';
-                else if (rangoOriginal.includes('master') || rangoOriginal.includes('maestro')) colorClass = 'rank-master';
+                const r = (p.Rango || "").toLowerCase();
+                let rClass = r.includes('master') ? 'rank-master' : r.includes('diamante') ? 'rank-diamante' : r.includes('esmeralda') ? 'rank-esmeralda' : r.includes('oro') ? 'rank-oro' : '';
+                
+                const isLive = p["Estado Live"] && p["Estado Live"].includes("partida");
+                const hasFire = p["Racha"] && p["Racha"].includes("🔥");
 
                 html += `
                     <tr>
-                        <td style="color:#555">${i + 1}</td>
-                        <td style="font-weight:bold">${p[0]}</td>
-                        <td><span class="rank-tag ${colorClass}">${p[1] || '---'}</span></td>
-                        <td class="lp-text">${p[2] || 0} LP</td>
+                        <td style="color:#444; font-weight:bold;">${i + 1}</td>
+                        <td>
+                            <div style="font-weight:bold; font-size:15px;">${p.Jugador} ${hasFire ? '<span class="fire-streak">🔥</span>' : ''}</div>
+                        </td>
+                        <td>
+                            <span class="rank-tag ${rClass}">${p.Rango || '---'}</span>
+                            <div class="lp-text">${p.LP || 0} LP</div>
+                        </td>
+                        <td>
+                            <div style="color:#ccc">${p["V/D"] || '0W / 0D'}</div>
+                            <div class="winrate">${p["WR%"] || '0%'} Winrate</div>
+                        </td>
+                        <td class="kda-box">${p["KDA Avg"] || '0.00'}</td>
+                        <td>
+                            ${isLive ? '<span class="live-status">🔴 EN PARTIDA</span>' : '<span style="color:#444">Offline</span>'}
+                        </td>
                     </tr>
                 `;
             });
             container.innerHTML = html;
         }
-
         window.onload = loadData;
     </script>
 </body>
