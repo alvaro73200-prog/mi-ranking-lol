@@ -52,14 +52,12 @@
         
         td { padding: 18px 15px; border-bottom: 1px solid #1e1f24; font-size: 14px; }
 
-        /* Estilo para que el nombre parezca clickeable */
         .player-link {
             text-decoration: none;
-            color: inherit;
-            transition: color 0.2s;
+            transition: opacity 0.2s;
         }
         .player-link:hover {
-            color: var(--accent);
+            opacity: 0.8;
         }
 
         .rank-tag {
@@ -121,6 +119,18 @@
             });
         }
 
+        // Nueva función para asignar colores pasteles personalizados
+        function getPlayerColor(name) {
+            const colors = {
+                'Grey#W8TM': '#ffb347',        // Naranja Pastel
+                'Azzz#Bou': '#b19cd9',         // Morado Pastel
+                'Raven#Aisha': '#ffb7ce',      // Rosado Pastel
+                'Bodkin Arrow#bhr': '#77dd77', // Verde Pastel
+                'ForjaEterna#ETRN': '#aec6cf'  // Azul Pastel
+            };
+            return colors[name] || '#ffffff'; // Blanco por defecto
+        }
+
         function getWinrateColor(wrPercent) {
             if (wrPercent >= 50) {
                 const intensity = Math.min(100, 50 + (wrPercent - 50) * 5);
@@ -142,9 +152,11 @@
                 const isLive = p["Estado Live"] && p["Estado Live"].includes("partida");
                 const hasFire = p["Racha"] && p["Racha"].includes("🔥");
 
-                // Generación de Link de OP.GG
                 const nameParts = p.Jugador.split('#');
                 const opggUrl = `https://www.op.gg/summoners/lan/${encodeURIComponent(nameParts[0].trim())}-${encodeURIComponent(nameParts[1] ? nameParts[1].trim() : '')}`;
+                
+                // Color personalizado
+                const customColor = getPlayerColor(p.Jugador.trim());
 
                 const wlRaw = p["V/D"] || '0W / 0D';
                 const wlParts = wlRaw.split('/');
@@ -159,8 +171,10 @@
                     <tr>
                         <td style="color:#444; font-weight:bold;">${i + 1}</td>
                         <td>
-                            <a href="${opggUrl}" target="_blank" class="player-link">
-                                <div style="font-weight:bold; font-size:15px;">${p.Jugador} ${hasFire ? '<span class="fire-streak">🔥</span>' : ''}</div>
+                            <a href="${opggUrl}" target="_blank" class="player-link" style="color:${customColor}">
+                                <div style="font-weight:bold; font-size:15px; text-shadow: 0 0 8px ${customColor}44;">
+                                    ${p.Jugador} ${hasFire ? '<span class="fire-streak">🔥</span>' : ''}
+                                </div>
                             </a>
                         </td>
                         <td>
