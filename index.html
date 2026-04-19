@@ -4,76 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LAN Leaderboard - Team Grey</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
-        body { background-color: #0f1214; color: white; font-family: 'Segoe UI', sans-serif; margin: 20px; }
-        .container { max-width: 1000px; margin: auto; display: flex; gap: 20px; flex-wrap: wrap; }
-        .leaderboard { flex: 1; min-width: 300px; background: #1a1e22; padding: 20px; border-radius: 10px; }
-        .chart-container { flex: 1; min-width: 300px; background: #1a1e22; padding: 20px; border-radius: 10px; }
-        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; color: #f0e6d2; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #2a2e33; }
-        th { color: #888; text-transform: uppercase; font-size: 12px; }
-        .rank-master { color: #cc33ff; font-weight: bold; }
-        .rank-diamond { color: #3399ff; font-weight: bold; }
+        :root {
+            --bg-color: #09090c;
+            --card-bg: #121217;
+            --border-color: #25262d;
+            --text-primary: #f0e6d2; /* Dorado LoL */
+            --text-secondary: #a0a0a8;
+            --accent: #00cfbc; /* Color cian de la imagen */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+        }
+
+        h1 {
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .leaderboard-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-secondary);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 15px 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 16px 10px;
+            border-bottom: 1px solid #1e1f24;
+            font-size: 14px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .pos {
+            color: var(--text-secondary);
+            font-weight: bold;
+            width: 40px;
+        }
+
+        .name {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .rank-tag {
+            background: #1e1f24;
+            color: #c8aa6e;
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 11px;
+            font-weight: bold;
+            border: 1px solid #3c3c41;
+        }
+
+        .lp-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lp-bar-bg {
+            height: 4px;
+            background: #25262d;
+            width: 60px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .lp-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .lp-text {
+            color: var(--accent);
+            font-weight: bold;
+            min-width: 50px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
-    <h1>RANKING LAN - GRUPO</h1>
+
     <div class="container">
-        <div class="leaderboard">
-            <h2>Clasificación</h2>
+        <h1>Leaderboard LAN</h1>
+        <div class="leaderboard-card">
             <table>
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Jugador</th>
                         <th>Rango</th>
-                        <th>LP</th>
+                        <th>Puntuación</th>
                     </tr>
                 </thead>
-                <tbody id="tabla-cuerpo">
-                    <tr><td>1</td><td>Grey#W8TM</td><td>MASTER</td><td>150 LP</td></tr>
-                    <tr><td>2</td><td>Azz#Bou</td><td>DIAMANTE I</td><td>85 LP</td></tr>
-                    <tr><td>3</td><td>Bodkin Arrow#bhr</td><td>DIAMANTE II</td><td>20 LP</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="chart-container">
-            <h2>Evolución de LP</h2>
-            <canvas id="progresoChart"></canvas>
-        </div>
-    </div>
-
-    <script>
-        // Configuración de la Gráfica
-        const ctx = document.getElementById('progresoChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['13 Mar', '19 Mar', '25 Mar', '1 Abr', '7 Abr', '13 Abr'], // Fechas
-                datasets: [{
-                    label: 'Grey',
-                    data: [100, 120, 110, 140, 150, 160],
-                    borderColor: '#00f2ff',
-                    tension: 0.4
-                }, {
-                    label: 'Azz',
-                    data: [80, 85, 90, 82, 88, 95],
-                    borderColor: '#ff00ff',
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { labels: { color: 'white' } } },
-                scales: {
-                    y: { grid: { color: '#333' }, ticks: { color: 'white' } },
-                    x: { grid: { color: '#333' }, ticks: { color: 'white' } }
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+                <tbody id="table-content">
+                    <tr><td colspan="4" class="
