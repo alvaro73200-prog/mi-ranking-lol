@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaderboard LAN - Team Grey</title>
+    <title>Leaderboard Pro - Team Grey</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         :root {
             --bg: #060608;
@@ -15,95 +18,165 @@
             --diamante: #3498db;
             --esmeralda: #2ecc71;
             --oro: #f1c40f;
+            --hierro: #a19d94;
         }
 
         body {
             background-color: var(--bg);
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 30px 10px;
+            padding: 20px;
         }
 
-        h1 { color: var(--gold); letter-spacing: 5px; text-transform: uppercase; font-size: 22px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        h1 { color: var(--gold); letter-spacing: 5px; text-transform: uppercase; margin-bottom: 5px; }
+        .refresh-timer { font-size: 12px; color: #666; font-family: monospace; }
+
+        /* Contenedor de Gráfica */
+        .chart-container {
+            background: var(--card);
+            border: 1px solid #25262d;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 950px;
+            padding: 20px;
+            margin-bottom: 20px;
+            height: 300px;
+        }
 
         .leaderboard-card {
             background: var(--card);
             border: 1px solid #25262d;
-            border-radius: 8px;
+            border-radius: 12px;
             width: 100%;
             max-width: 950px;
             overflow-x: auto;
             box-shadow: 0 15px 50px rgba(0,0,0,0.8);
         }
 
-        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { text-align: left; color: #a0a0a8; font-size: 11px; text-transform: uppercase; padding: 15px; border-bottom: 1px solid #25262d; }
+        td { padding: 15px; border-bottom: 1px solid #1e1f24; font-size: 14px; }
+
+        /* Estilos de Rango e Iconos */
+        .rank-container { display: flex; align-items: center; gap: 10px; }
+        .rank-icon { width: 35px; height: 35px; object-fit: contain; }
+        .rank-tag { font-weight: bold; text-transform: uppercase; font-size: 12px; }
+
+        /* Colores dinámicos */
+        .color-master { color: var(--master); }
+        .color-diamante { color: var(--diamante); }
+        .color-esmeralda { color: var(--esmeralda); }
+        .color-oro { color: var(--oro); }
+
+        .lp-text { color: var(--accent); font-weight: bold; font-family: 'Courier New', Courier, monospace; }
         
-        th { 
-            text-align: left; 
-            color: #a0a0a8; 
-            font-size: 13px; 
-            text-transform: uppercase; 
-            padding: 20px 15px; 
-            border-bottom: 1px solid #25262d; 
+        /* Sugerencias y Tips */
+        .sugerencia-box {
+            font-size: 11px;
+            background: rgba(255,255,255,0.05);
+            padding: 5px 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+            color: #aaa;
+            border-left: 2px solid var(--accent);
         }
+
+        .live-pulse {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #2ecc71;
+            border-radius: 50%;
+            margin-right: 5px;
+            box-shadow: 0 0 8px #2ecc71;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         
-        td { padding: 18px 15px; border-bottom: 1px solid #1e1f24; font-size: 14px; }
-
-        .player-link {
-            text-decoration: none;
-            transition: opacity 0.2s;
-        }
-        .player-link:hover { opacity: 0.8; }
-
-        .rank-tag {
-            padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold;
-            text-transform: uppercase; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .rank-master { color: var(--master); border-color: var(--master); }
-        .rank-diamante { color: var(--diamante); border-color: var(--diamante); }
-        .rank-esmeralda { color: var(--esmeralda); border-color: var(--esmeralda); }
-        .rank-oro { color: var(--oro); border-color: var(--oro); }
-
-        .lp-text { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 16px; }
-        
-        .win-text { color: #2ecc71; font-weight: bold; }
-        .loss-text { color: #ff4e50; font-weight: bold; }
-        .winrate { font-size: 12px; font-weight: bold; }
-
-        .kda-box { font-weight: bold; color: #eee; }
-        .live-status { font-size: 12px; font-weight: bold; color: #2ecc71; }
-        .offline-status { color: #444; font-weight: bold; }
-
-        .fire-streak { filter: drop-shadow(0 0 5px orange); }
+        .player-name { font-weight: bold; font-size: 16px; text-decoration: none; }
+        .fire-icon { color: #ff4e50; margin-left: 5px; }
     </style>
 </head>
 <body>
 
-    <h1>TOP ELO</h1>
+    <div class="header">
+        <h1>SISTEMA DE MONITOREO LAN</h1>
+        <div id="timer" class="refresh-timer">Sincronizando datos...</div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="lpChart"></canvas>
+    </div>
 
     <div class="leaderboard-card">
         <table>
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Invocador</th>
-                    <th>Rango / LP</th>
-                    <th>W/L (WR%)</th>
-                    <th>KDA (10 Last)</th> 
+                    <th>Invocador / Sugerencia</th>
+                    <th>Rango & Icono</th>
+                    <th>Puntos (LP)</th>
+                    <th>Rendimiento (WR)</th>
                     <th>Estado</th>
                 </tr>
             </thead>
             <tbody id="table-content">
-                <tr><td colspan="6" style="text-align:center; padding:50px; color:#555;">Sincronizando con la API de Riot...</td></tr>
-            </tbody>
+                </tbody>
         </table>
     </div>
 
     <script>
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR1QLLy1Re4K4bW5HfCmOBqvVYBai_abDwZtkE9lH5hdIFCnR3I1GsK-fp5xt_rg8jBs9V5ckPhu2-s/pub?output=csv';
+        let myChart;
+
+        // Diccionario de Sugerencias (Lo que me pediste guardar)
+        const sugerencias = {
+            'Grey#W8TM': '¡Sigue con Hwei! Controla mejor la wave en el nivel 6.',
+            'Azzz#Bou': 'Buen KDA. Prueba rotar más a bot después de la primera torre.',
+            'Raven#Aisha': 'Focus en el farm. Intenta llegar a 8 CS/min.',
+            'Bodkin Arrow#bhr': 'La racha está 🔥. Sigue con el mismo pool de campeones.',
+            'Zenix#4025': 'Cuidado con los gankeos nivel 3. Wardea más profundo.',
+            'ForjaEterna#ETRN': 'Tu winrate es sólido. ¡Sigue así!'
+        };
+
+        function getPlayerColor(name) {
+            const colors = {
+                'Grey#W8TM': '#ffb347', 'Azzz#Bou': '#b19cd9', 'Raven#Aisha': '#ffb7ce',
+                'Bodkin Arrow#bhr': '#77dd77', 'Zenix#4025': '#c3aed6', 'ForjaEterna#ETRN': '#aec6cf'
+            };
+            return colors[name] || '#ffffff';
+        }
+
+        function initChart(labels, data, colors) {
+            const ctx = document.getElementById('lpChart').getContext('2d');
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'League Points (LP)',
+                        data: data,
+                        backgroundColor: colors,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#25262d' } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
 
         function loadData() {
             Papa.parse(csvUrl, {
@@ -111,25 +184,16 @@
                 complete: function(results) {
                     const sorted = results.data.sort((a,b) => parseInt(b.LP || 0) - parseInt(a.LP || 0));
                     render(sorted);
+                    
+                    // Preparar datos para la gráfica
+                    const labels = sorted.map(p => p.Jugador.split('#')[0]);
+                    const lpData = sorted.map(p => parseInt(p.LP || 0));
+                    const colors = sorted.map(p => getPlayerColor(p.Jugador.trim()));
+                    initChart(labels, lpData, colors);
+                    
+                    document.getElementById('timer').innerText = "Última actualización: " + new Date().toLocaleTimeString();
                 }
             });
-        }
-
-        function getPlayerColor(name) {
-            const colors = {
-                'Grey#W8TM': '#ffb347',        // Naranja Pastel
-                'Azzz#Bou': '#b19cd9',         // Morado Pastel
-                'Raven#Aisha': '#ffb7ce',      // Rosado Pastel
-                'Bodkin Arrow#bhr': '#77dd77', // Verde Pastel
-                'Zenix#4025': '#c3aed6',       // Lila Pastel
-                'ForjaEterna#ETRN': '#aec6cf'  // Azul Pastel
-            };
-            return colors[name] || '#ffffff';
-        }
-
-        function getWinrateColor(wrPercent) {
-            if (wrPercent >= 50) return `rgb(46, 204, 113)`; 
-            return `rgb(231, 76, 60)`;
         }
 
         function render(players) {
@@ -137,57 +201,53 @@
             let html = '';
 
             players.forEach((p, i) => {
-                const r = (p.Rango || "").toLowerCase();
-                let rClass = r.includes('master') ? 'rank-master' : 
-                             r.includes('diamante') ? 'rank-diamante' : 
-                             r.includes('esmeralda') ? 'rank-esmeralda' : 
-                             r.includes('oro') ? 'rank-oro' : '';
+                const fullID = p.Jugador.trim();
+                const nameOnly = fullID.split('#')[0];
+                const rankStr = (p.Rango || "SIN RANGO").toUpperCase();
+                const customColor = getPlayerColor(fullID);
                 
+                // Lógica de Iconos (Riot Assets)
+                let tier = rankStr.split(' ')[0] || "UNRANKED";
+                if(tier === "SIN") tier = "IRON"; // Placeholder
+                const iconUrl = `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-emblem/emblem-${tier.toLowerCase()}.png`;
+
                 const isOnline = p["Campeón"] && p["Campeón"].includes("Online");
                 const hasFire = p["Racha"] && p["Racha"].includes("🔥");
 
-                const nameParts = p.Jugador.split('#');
-                const opggUrl = `https://www.op.gg/summoners/lan/${encodeURIComponent(nameParts[0].trim())}-${encodeURIComponent(nameParts[1] ? nameParts[1].trim() : '')}`;
-                
-                const customColor = getPlayerColor(p.Jugador.trim());
-
-                const wlRaw = p["V/D"] || '0W / 0D';
-                const wlParts = wlRaw.split('/');
-                const winText = `<span class="win-text">${wlParts[0] || '0W'}</span>`;
-                const lossText = `<span class="loss-text">${wlParts[1] || '0D'}</span>`;
-                
-                const wrRaw = p["WR%"] || '0%';
-                const wrValue = parseFloat(wrRaw.replace('%', '')) || 0;
-                const wrColor = getWinrateColor(wrValue);
-
                 html += `
                     <tr>
-                        <td style="color:#444; font-weight:bold;">${i + 1}</td>
+                        <td>${i + 1}</td>
                         <td>
-                            <a href="${opggUrl}" target="_blank" class="player-link" style="color:${customColor}">
-                                <div style="font-weight:bold; font-size:15px; text-shadow: 0 0 8px ${customColor}44;">
-                                    ${p.Jugador} ${hasFire ? '<span class="fire-streak">🔥</span>' : ''}
-                                </div>
+                            <a href="https://www.op.gg/summoners/lan/${fullID.replace('#','-')}" target="_blank" class="player-name" style="color:${customColor}">
+                                ${fullID} ${hasFire ? '<i class="fas fa-fire fire-icon"></i>' : ''}
                             </a>
+                            <div class="sugerencia-box">
+                                <i class="fas fa-lightbulb" style="color:var(--gold)"></i> ${sugerencias[fullID] || 'Continúa jugando para recibir tips.'}
+                            </div>
                         </td>
                         <td>
-                            <span class="rank-tag ${rClass}">${p.Rango || 'SIN RANGO'}</span>
-                            <div class="lp-text">${p.LP || 0} LP</div>
+                            <div class="rank-container">
+                                <img src="${iconUrl}" class="rank-icon" onerror="this.src='https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-emblem/emblem-unranked.png'">
+                                <span class="rank-tag color-${tier.toLowerCase()}">${rankStr}</span>
+                            </div>
+                        </td>
+                        <td class="lp-text">${p.LP || 0} LP</td>
+                        <td>
+                            <div style="font-weight:bold">${p["WR%"] || '0%'}</div>
+                            <div style="font-size:10px; color:#666">${p["V/D"] || '0W/0D'}</div>
                         </td>
                         <td>
-                            <div style="color:#ccc">${winText} / ${lossText}</div>
-                            <div class="winrate" style="color:${wrColor}">${wrRaw} Winrate</div>
-                        </td>
-                        <td class="kda-box">${p["KDA Avg"] || '0.00'}</td>
-                        <td>
-                            ${isOnline ? '<span class="live-status">Online</span>' : '<span class="offline-status">Offline</span>'}
-                            <div style="font-size:10px; color:#666">${p["Estado Live"] || ''}</div>
+                            ${isOnline ? '<span><span class="live-pulse"></span>Online</span>' : '<span style="color:#444">Offline</span>'}
+                            <div style="font-size:10px; color:#555">LVL ${p["Estado Live"]?.replace('Nivel: ','') || '--'}</div>
                         </td>
                     </tr>
                 `;
             });
             container.innerHTML = html;
         }
+
+        // Auto-refresh cada 5 minutos
+        setInterval(loadData, 300000);
         window.onload = loadData;
     </script>
 </body>
