@@ -10,9 +10,9 @@
             --bg-color: #09090c;
             --card-bg: #121217;
             --border-color: #25262d;
-            --text-primary: #f0e6d2; /* Dorado LoL */
+            --text-primary: #f0e6d2; 
             --text-secondary: #a0a0a8;
-            --accent: #00cfbc; /* Color cian de la imagen */
+            --accent: #00cfbc; 
         }
 
         body {
@@ -22,29 +22,27 @@
             margin: 0;
             padding: 40px 20px;
             display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 850px;
+            flex-direction: column;
+            align-items: center;
         }
 
         h1 {
-            font-size: 24px;
+            font-size: 28px;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             margin-bottom: 30px;
-            text-align: center;
             color: var(--text-primary);
+            text-shadow: 0 0 10px rgba(240, 230, 210, 0.2);
         }
 
         .leaderboard-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 4px;
-            padding: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 15px;
+            width: 100%;
+            max-width: 850px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
         }
 
         table {
@@ -57,15 +55,15 @@
             color: var(--text-secondary);
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             padding: 15px 10px;
             border-bottom: 1px solid var(--border-color);
         }
 
         td {
-            padding: 16px 10px;
+            padding: 18px 10px;
             border-bottom: 1px solid #1e1f24;
-            font-size: 14px;
+            font-size: 15px;
         }
 
         tr:last-child td {
@@ -76,33 +74,36 @@
             color: var(--text-secondary);
             font-weight: bold;
             width: 40px;
+            font-family: serif;
         }
 
         .name {
             font-weight: 600;
+            color: white;
             letter-spacing: 0.5px;
         }
 
         .rank-tag {
             background: #1e1f24;
             color: #c8aa6e;
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 2px;
             font-size: 11px;
             font-weight: bold;
             border: 1px solid #3c3c41;
+            text-transform: uppercase;
         }
 
         .lp-container {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
         .lp-bar-bg {
             height: 4px;
             background: #25262d;
-            width: 60px;
+            width: 80px;
             border-radius: 2px;
             overflow: hidden;
         }
@@ -110,36 +111,102 @@
         .lp-bar-fill {
             height: 100%;
             background: var(--accent);
-            box-shadow: 0 0 10px var(--accent);
+            box-shadow: 0 0 12px var(--accent);
+            transition: width 1s ease-in-out;
         }
 
         .lp-text {
             color: var(--accent);
             font-weight: bold;
-            min-width: 50px;
+            font-family: monospace;
+            font-size: 16px;
+            min-width: 60px;
         }
 
-        .loading {
+        .loading-text {
             text-align: center;
-            padding: 50px;
+            padding: 60px;
             color: var(--text-secondary);
             font-style: italic;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Leaderboard LAN</h1>
-        <div class="leaderboard-card">
-            <table>
-                <thead>
+    <h1>Leaderboard LAN</h1>
+
+    <div class="leaderboard-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Invocador</th>
+                    <th>Rango</th>
+                    <th>Puntuación Actual</th>
+                </tr>
+            </thead>
+            <tbody id="table-content">
+                <tr><td colspan="4" class="loading-text">Sincronizando con los servidores de LAN...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // TU LINK DE GOOGLE SHEETS (YA CONFIGURADO)
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR1QLLy1Re4K4bW5HfCmOBqvVYBai_abDwZtkE9lH5hdIFCnR3I1GsK-fp5xt_rg8jBs9V5ckPhu2-s/pub?output=csv';
+
+        function loadData() {
+            Papa.parse(csvUrl, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    renderTable(results.data);
+                },
+                error: function(err) {
+                    document.getElementById('table-content').innerHTML = 
+                        '<tr><td colspan="4" class="loading-text" style="color:red">Error al conectar con Google Sheets. Verifica que esté publicado como CSV.</td></tr>';
+                }
+            });
+        }
+
+        function renderTable(data) {
+            const container = document.getElementById('table-content');
+            
+            // Limpiamos y ordenamos por LP (de mayor a menor)
+            const sortedData = data
+                .filter(row => row.Jugador && row.Jugador.trim() !== "")
+                .sort((a, b) => parseInt(b.LP || 0) - parseInt(a.LP || 0));
+
+            let html = '';
+            sortedData.forEach((row, index) => {
+                const lp = parseInt(row.LP || 0);
+                // La barrita se llena según el LP (máximo 100 para el efecto visual)
+                const barWidth = Math.min(lp, 100); 
+
+                html += `
                     <tr>
-                        <th>#</th>
-                        <th>Jugador</th>
-                        <th>Rango</th>
-                        <th>Puntuación</th>
+                        <td class="pos">${index + 1}</td>
+                        <td class="name">${row.Jugador}</td>
+                        <td><span class="rank-tag">${row.Rango || 'UNRANKED'}</span></td>
+                        <td>
+                            <div class="lp-container">
+                                <div class="lp-text">${lp} LP</div>
+                                <div class="lp-bar-bg">
+                                    <div class="lp-bar-fill" style="width: ${barWidth}%"></div>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
-                </thead>
-                <tbody id="table-content">
-                    <tr><td colspan="4" class="
+                `;
+            });
+
+            container.innerHTML = html || '<tr><td colspan="4" class="loading-text">No hay jugadores registrados en el Excel.</td></tr>';
+        }
+
+        // Iniciar carga
+        window.onload = loadData;
+    </script>
+</body>
+</html>
