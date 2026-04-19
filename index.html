@@ -41,17 +41,26 @@
 
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
         
-        /* Ajuste Punto 2: Cabeceras un poco más grandes */
         th { 
             text-align: left; 
             color: #a0a0a8; 
-            font-size: 13px; /* Aumentado de 10px a 13px */
+            font-size: 13px; 
             text-transform: uppercase; 
             padding: 20px 15px; 
             border-bottom: 1px solid #25262d; 
         }
         
         td { padding: 18px 15px; border-bottom: 1px solid #1e1f24; font-size: 14px; }
+
+        /* Estilo para que el nombre parezca clickeable */
+        .player-link {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.2s;
+        }
+        .player-link:hover {
+            color: var(--accent);
+        }
 
         .rank-tag {
             padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold;
@@ -64,7 +73,6 @@
 
         .lp-text { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 16px; }
         
-        /* Ajuste Punto 3: Estilos para W/L */
         .win-text { color: #2ecc71; font-weight: bold; }
         .loss-text { color: #ff4e50; font-weight: bold; }
         .winrate { font-size: 12px; font-weight: bold; }
@@ -81,7 +89,7 @@
 </head>
 <body>
 
-    <h1>LEADERBOARD LAN</h1>
+    <h1>TOP ELO</h1>
 
     <div class="leaderboard-card">
         <table>
@@ -113,14 +121,11 @@
             });
         }
 
-        // Función para calcular color de Winrate (Ajuste Punto 3)
         function getWinrateColor(wrPercent) {
             if (wrPercent >= 50) {
-                // De 50% (verde suave) a 60% (verde intenso)
                 const intensity = Math.min(100, 50 + (wrPercent - 50) * 5);
                 return `rgb(46, ${intensity + 150}, 113)`; 
             } else {
-                // De 50% (rojo suave) a 40% (rojo intenso)
                 const intensity = Math.min(100, 50 + (50 - wrPercent) * 5);
                 return `rgb(${intensity + 150}, 78, 80)`;
             }
@@ -137,7 +142,10 @@
                 const isLive = p["Estado Live"] && p["Estado Live"].includes("partida");
                 const hasFire = p["Racha"] && p["Racha"].includes("🔥");
 
-                // Procesar W/L y Winrate para colores (Ajuste Punto 3)
+                // Generación de Link de OP.GG
+                const nameParts = p.Jugador.split('#');
+                const opggUrl = `https://www.op.gg/summoners/lan/${encodeURIComponent(nameParts[0].trim())}-${encodeURIComponent(nameParts[1] ? nameParts[1].trim() : '')}`;
+
                 const wlRaw = p["V/D"] || '0W / 0D';
                 const wlParts = wlRaw.split('/');
                 const winText = wlParts[0] ? `<span class="win-text">${wlParts[0]}</span>` : '<span class="win-text">0W</span>';
@@ -151,7 +159,9 @@
                     <tr>
                         <td style="color:#444; font-weight:bold;">${i + 1}</td>
                         <td>
-                            <div style="font-weight:bold; font-size:15px;">${p.Jugador} ${hasFire ? '<span class="fire-streak">🔥</span>' : ''}</div>
+                            <a href="${opggUrl}" target="_blank" class="player-link">
+                                <div style="font-weight:bold; font-size:15px;">${p.Jugador} ${hasFire ? '<span class="fire-streak">🔥</span>' : ''}</div>
+                            </a>
                         </td>
                         <td>
                             <span class="rank-tag ${rClass}">${p.Rango || '---'}</span>
