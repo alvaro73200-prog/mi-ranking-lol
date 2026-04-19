@@ -40,7 +40,17 @@
         }
 
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
-        th { text-align: left; color: #a0a0a8; font-size: 10px; text-transform: uppercase; padding: 20px 15px; border-bottom: 1px solid #25262d; }
+        
+        /* Ajuste Punto 2: Cabeceras un poco más grandes */
+        th { 
+            text-align: left; 
+            color: #a0a0a8; 
+            font-size: 13px; /* Aumentado de 10px a 13px */
+            text-transform: uppercase; 
+            padding: 20px 15px; 
+            border-bottom: 1px solid #25262d; 
+        }
+        
         td { padding: 18px 15px; border-bottom: 1px solid #1e1f24; font-size: 14px; }
 
         .rank-tag {
@@ -53,7 +63,12 @@
         .rank-oro { color: var(--oro); border-color: var(--oro); }
 
         .lp-text { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 16px; }
-        .winrate { font-size: 12px; color: #888; }
+        
+        /* Ajuste Punto 3: Estilos para W/L */
+        .win-text { color: #2ecc71; font-weight: bold; }
+        .loss-text { color: #ff4e50; font-weight: bold; }
+        .winrate { font-size: 12px; font-weight: bold; }
+
         .kda-box { font-weight: bold; color: #eee; }
         .live-status { font-size: 12px; font-weight: bold; color: #ff4e50; animation: pulse 2s infinite; }
         
@@ -76,8 +91,7 @@
                     <th>Invocador</th>
                     <th>Rango / LP</th>
                     <th>W/L (WR%)</th>
-                    <th>KDA (5 Last)</th>
-                    <th>Estado</th>
+                    <th>KDA (10 Last)</th> <th>Estado</th>
                 </tr>
             </thead>
             <tbody id="table-content">
@@ -99,6 +113,19 @@
             });
         }
 
+        // Función para calcular color de Winrate (Ajuste Punto 3)
+        function getWinrateColor(wrPercent) {
+            if (wrPercent >= 50) {
+                // De 50% (verde suave) a 60% (verde intenso)
+                const intensity = Math.min(100, 50 + (wrPercent - 50) * 5);
+                return `rgb(46, ${intensity + 150}, 113)`; 
+            } else {
+                // De 50% (rojo suave) a 40% (rojo intenso)
+                const intensity = Math.min(100, 50 + (50 - wrPercent) * 5);
+                return `rgb(${intensity + 150}, 78, 80)`;
+            }
+        }
+
         function render(players) {
             const container = document.getElementById('table-content');
             let html = '';
@@ -109,6 +136,16 @@
                 
                 const isLive = p["Estado Live"] && p["Estado Live"].includes("partida");
                 const hasFire = p["Racha"] && p["Racha"].includes("🔥");
+
+                // Procesar W/L y Winrate para colores (Ajuste Punto 3)
+                const wlRaw = p["V/D"] || '0W / 0D';
+                const wlParts = wlRaw.split('/');
+                const winText = wlParts[0] ? `<span class="win-text">${wlParts[0]}</span>` : '<span class="win-text">0W</span>';
+                const lossText = wlParts[1] ? `<span class="loss-text">${wlParts[1]}</span>` : '<span class="loss-text">0D</span>';
+                
+                const wrRaw = p["WR%"] || '0%';
+                const wrValue = parseFloat(wrRaw.replace('%', '')) || 0;
+                const wrColor = getWinrateColor(wrValue);
 
                 html += `
                     <tr>
@@ -121,8 +158,8 @@
                             <div class="lp-text">${p.LP || 0} LP</div>
                         </td>
                         <td>
-                            <div style="color:#ccc">${p["V/D"] || '0W / 0D'}</div>
-                            <div class="winrate">${p["WR%"] || '0%'} Winrate</div>
+                            <div style="color:#ccc">${winText} / ${lossText}</div>
+                            <div class="winrate" style="color:${wrColor}">${wrRaw} Winrate</div>
                         </td>
                         <td class="kda-box">${p["KDA Avg"] || '0.00'}</td>
                         <td>
