@@ -56,15 +56,13 @@
             text-decoration: none;
             transition: opacity 0.2s;
         }
-        .player-link:hover {
-            opacity: 0.8;
-        }
+        .player-link:hover { opacity: 0.8; }
 
         .rank-tag {
             padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold;
             text-transform: uppercase; border: 1px solid rgba(255,255,255,0.1);
         }
-        .rank-master { color: var(--master); border-color: var(--master); box-shadow: 0 0 10px rgba(255,121,198,0.2); }
+        .rank-master { color: var(--master); border-color: var(--master); }
         .rank-diamante { color: var(--diamante); border-color: var(--diamante); }
         .rank-esmeralda { color: var(--esmeralda); border-color: var(--esmeralda); }
         .rank-oro { color: var(--oro); border-color: var(--oro); }
@@ -76,11 +74,8 @@
         .winrate { font-size: 12px; font-weight: bold; }
 
         .kda-box { font-weight: bold; color: #eee; }
-        .live-status { font-size: 12px; font-weight: bold; color: #ff4e50; animation: pulse 2s infinite; }
-        
-        @keyframes pulse { 
-            0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; }
-        }
+        .live-status { font-size: 12px; font-weight: bold; color: #2ecc71; }
+        .offline-status { color: #444; font-weight: bold; }
 
         .fire-streak { filter: drop-shadow(0 0 5px orange); }
     </style>
@@ -97,7 +92,8 @@
                     <th>Invocador</th>
                     <th>Rango / LP</th>
                     <th>W/L (WR%)</th>
-                    <th>KDA (10 Last)</th> <th>Estado</th>
+                    <th>KDA (10 Last)</th> 
+                    <th>Estado</th>
                 </tr>
             </thead>
             <tbody id="table-content">
@@ -119,26 +115,21 @@
             });
         }
 
-        // Nueva función para asignar colores pasteles personalizados
         function getPlayerColor(name) {
             const colors = {
                 'Grey#W8TM': '#ffb347',        // Naranja Pastel
                 'Azzz#Bou': '#b19cd9',         // Morado Pastel
                 'Raven#Aisha': '#ffb7ce',      // Rosado Pastel
                 'Bodkin Arrow#bhr': '#77dd77', // Verde Pastel
+                'Zenix#4025': '#c3aed6',       // Lila Pastel
                 'ForjaEterna#ETRN': '#aec6cf'  // Azul Pastel
             };
-            return colors[name] || '#ffffff'; // Blanco por defecto
+            return colors[name] || '#ffffff';
         }
 
         function getWinrateColor(wrPercent) {
-            if (wrPercent >= 50) {
-                const intensity = Math.min(100, 50 + (wrPercent - 50) * 5);
-                return `rgb(46, ${intensity + 150}, 113)`; 
-            } else {
-                const intensity = Math.min(100, 50 + (50 - wrPercent) * 5);
-                return `rgb(${intensity + 150}, 78, 80)`;
-            }
+            if (wrPercent >= 50) return `rgb(46, 204, 113)`; 
+            return `rgb(231, 76, 60)`;
         }
 
         function render(players) {
@@ -147,21 +138,23 @@
 
             players.forEach((p, i) => {
                 const r = (p.Rango || "").toLowerCase();
-                let rClass = r.includes('master') ? 'rank-master' : r.includes('diamante') ? 'rank-diamante' : r.includes('esmeralda') ? 'rank-esmeralda' : r.includes('oro') ? 'rank-oro' : '';
+                let rClass = r.includes('master') ? 'rank-master' : 
+                             r.includes('diamante') ? 'rank-diamante' : 
+                             r.includes('esmeralda') ? 'rank-esmeralda' : 
+                             r.includes('oro') ? 'rank-oro' : '';
                 
-                const isLive = p["Estado Live"] && p["Estado Live"].includes("partida");
+                const isOnline = p["Campeón"] && p["Campeón"].includes("Online");
                 const hasFire = p["Racha"] && p["Racha"].includes("🔥");
 
                 const nameParts = p.Jugador.split('#');
                 const opggUrl = `https://www.op.gg/summoners/lan/${encodeURIComponent(nameParts[0].trim())}-${encodeURIComponent(nameParts[1] ? nameParts[1].trim() : '')}`;
                 
-                // Color personalizado
                 const customColor = getPlayerColor(p.Jugador.trim());
 
                 const wlRaw = p["V/D"] || '0W / 0D';
                 const wlParts = wlRaw.split('/');
-                const winText = wlParts[0] ? `<span class="win-text">${wlParts[0]}</span>` : '<span class="win-text">0W</span>';
-                const lossText = wlParts[1] ? `<span class="loss-text">${wlParts[1]}</span>` : '<span class="loss-text">0D</span>';
+                const winText = `<span class="win-text">${wlParts[0] || '0W'}</span>`;
+                const lossText = `<span class="loss-text">${wlParts[1] || '0D'}</span>`;
                 
                 const wrRaw = p["WR%"] || '0%';
                 const wrValue = parseFloat(wrRaw.replace('%', '')) || 0;
@@ -178,7 +171,7 @@
                             </a>
                         </td>
                         <td>
-                            <span class="rank-tag ${rClass}">${p.Rango || '---'}</span>
+                            <span class="rank-tag ${rClass}">${p.Rango || 'SIN RANGO'}</span>
                             <div class="lp-text">${p.LP || 0} LP</div>
                         </td>
                         <td>
@@ -187,7 +180,8 @@
                         </td>
                         <td class="kda-box">${p["KDA Avg"] || '0.00'}</td>
                         <td>
-                            ${isLive ? '<span class="live-status">🔴 EN PARTIDA</span>' : '<span style="color:#444">Offline</span>'}
+                            ${isOnline ? '<span class="live-status">Online</span>' : '<span class="offline-status">Offline</span>'}
+                            <div style="font-size:10px; color:#666">${p["Estado Live"] || ''}</div>
                         </td>
                     </tr>
                 `;
