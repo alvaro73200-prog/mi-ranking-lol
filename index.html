@@ -13,7 +13,22 @@
 <body>
   <h1>LOL Tracker LAN</h1>
   <button onclick="loadData()">Cargar datos</button>
-  <pre id="output">Presiona el botón...</pre>
+ <table style="width:100%;margin-top:16px;border-collapse:collapse;background:#1b1b1b;border-radius:10px;overflow:hidden">
+  <thead>
+    <tr>
+      <th style="text-align:left;padding:12px;border-bottom:1px solid #333;">Jugador</th>
+      <th style="text-align:left;padding:12px;border-bottom:1px solid #333;">Rango</th>
+      <th style="text-align:left;padding:12px;border-bottom:1px solid #333;">LP</th>
+      <th style="text-align:left;padding:12px;border-bottom:1px solid #333;">WR</th>
+      <th style="text-align:left;padding:12px;border-bottom:1px solid #333;">V/D</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody">
+    <tr>
+      <td colspan="5" style="padding:12px;">Presiona el botón...</td>
+    </tr>
+  </tbody>
+</table>
 
   <script src="./data.js"></script>
   <script>
