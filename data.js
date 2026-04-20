@@ -22,17 +22,14 @@ function parseCSV(text) {
     const obj = {};
     headers.forEach((h, idx) => obj[h] = (values[idx] || '').trim());
 
-    const jugador = obj['Nombre'] || obj['Jugador'] || '';
-    const tag = obj['Tag'] || '';
-    const rango = obj['Rango'] || '';
-    const lp = obj['LP'] || '';
-    const wins = parseInt(obj['Wins'] || '0', 10) || 0;
-    const losses = parseInt(obj['Losses'] || '0', 10) || 0;
-    const winRate = obj['WinRate'] || '';
-    const wr = winRate || (wins + losses > 0 ? Math.round((wins / (wins + losses)) * 100) + '%' : '0%');
-    const vd = `${wins}W / ${losses}L`;
-
-    rows.push({ jugador, tag, rango, lp, wr, vd });
+    rows.push({
+      jugador: obj['Nombre'] || '',
+      tag: obj['Tag'] || '',
+      rango: obj['Rango'] || '',
+      lp: obj['LP'] || '',
+      wr: obj['WinRate'] || '',
+      vd: `${obj['Wins'] || 0}W / ${obj['Losses'] || 0}L`
+    });
   }
 
   return rows;
