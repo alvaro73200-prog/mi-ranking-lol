@@ -1,60 +1,130 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Team Tracker Cloud</title>
-    <style>
-        body { background: #000; color: #fff; font-family: sans-serif; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 50px; }
-        .box { border: 2px solid #00ccff; padding: 25px; border-radius: 15px; text-align: center; width: 320px; background: #050505; box-shadow: 0 0 20px rgba(0, 204, 255, 0.2); }
-        .rango-tag { background: #ffcc00; color: #000; font-weight: bold; padding: 6px 15px; border-radius: 5px; display: inline-block; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; }
-        .icon { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #00ccff; margin-bottom: 15px; }
-        h1 { margin: 0; font-size: 26px; }
-        .nivel { font-size: 42px; font-weight: bold; color: #00ccff; margin: 10px 0; }
-        .maestria-container { display: flex; align-items: center; justify-content: center; gap: 10px; color: #00ffcc; margin-bottom: 20px; font-style: italic; }
-        .champ-icon { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #00ffcc; }
-        .kda { color: #ffcc00; font-size: 22px; font-weight: bold; border-top: 1px solid #333; padding-top: 20px; }
-        #mensaje { position: fixed; top: 10px; font-size: 12px; color: #444; }
-    </style>
-</head>
-<body>
-    <div id="mensaje">Conectando con Google Cloud...</div>
-    <div id="contenedor" style="display: contents;"></div>
+const API_KEY = 'TU_API_KEY_AQUI'; 
+const NOMBRE_HOJA = "Datos"; 
 
-    <script>
-        // AQUÍ PEGARÁS LA URL QUE TE DARÁ GOOGLE SHEETS MÁS ADELANTE
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzn8i3Ct33TniSvK8fhlkI52upaUrqBz5vUtbX2WhjQeGWT2L3S5PpJfqwGHZ0oJGBYvg/exec";
+function actualizarTracker() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const hoja = ss.getSheetByName(NOMBRE_HOJA);
+  const datos = hoja.getDataRange().getValues(); 
 
-        async function actualizarDesdeNube() {
-            try {
-                const response = await fetch(WEB_APP_URL);
-                const data = await response.json();
-                const contenedor = document.getElementById('contenedor');
-                document.getElementById('mensaje').innerText = "Sincronizado con Sheets";
-                contenedor.innerHTML = ""; 
+  const urlChamps = "https://ddragon.leagueoflegends.com/cdn/14.10.1/data/es_ES/champion.json";
+  const resChamps = JSON.parse(UrlFetchApp.fetch(urlChamps).getContentText());
+  const champData = resChamps.data;
+  
+  let nombresChamps = {};
+  let idsChamps = {};
+  for (let key in champData) {
+    nombresChamps[champData[key].key] = champData[key].name;
+    idsChamps[champData[key].key] = champData[key].id;
+  }
 
-                data.forEach(p => {
-                    contenedor.innerHTML += `
-                        <div class="box">
-                            <div class="rango-tag">${p.rango} - ${p.lp}</div>
-                            <br>
-                            <img class="icon" src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/profileicon/${p.icono}.png">
-                            <h1>${p.nombre}</h1>
-                            <div class="nivel">Nivel ${p.nivel}</div>
-                            <div class="maestria-container">
-                                <img class="champ-icon" src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/${p.maestriaId}.png">
-                                <span>Main: ${p.maestria}</span>
-                            </div>
-                            <div class="kda">KDA: ${p.kda}</div>
-                        </div>
-                    `;
-                });
-            } catch (e) { 
-                document.getElementById('contenedor').innerHTML = "<h1>Esperando datos de Excel...</h1>"; 
-            }
+  for (let i = 1; i < datos.length; i++) {
+    let nombre = datos[i][0]; 
+    let tag = datos[i][1];    
+    
+    if (!nombre || !tag) continue;
+
+    try {
+      // A. Obtener PUUID (Americas)
+      const urlAcc = `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${nombre}/${tag}?api_key=${API_KEY}`;
+      const resAcc = JSON.parse(UrlFetchApp.fetch(urlAcc).getContentText());
+      const puuid = resAcc.puuid;
+
+      // B. Nivel e Icono (LAN)
+      const urlSum = `https://la1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}?api_key=${API_KEY}`;
+      const resSum = JSON.parse(UrlFetchApp.fetch(urlSum).getContentText());
+      
+      Utilities.sleep(1000); 
+
+      // C. Rango y LP por PUUID (LAN)
+      const urlLeague = `https://la1.api.riotgames.com/lol/league/v4/entries/by-puuid/${puuid}?api_key=${API_KEY}`;
+      const resLeague = JSON.parse(UrlFetchApp.fetch(urlLeague).getContentText());
+      let rango = "Sin Rango";
+      let lp = "0 LP";
+      const soloQ = resLeague.find(q => q.queueType === 'RANKED_SOLO_5x5');
+      if (soloQ) {
+        rango = `${soloQ.tier} ${soloQ.rank}`;
+        lp = `${soloQ.leaguePoints} LP`;
+      }
+
+      // D. Maestría (LAN)
+      const urlMast = `https://la1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/${puuid}/top?count=1&api_key=${API_KEY}`;
+      const resMast = JSON.parse(UrlFetchApp.fetch(urlMast).getContentText());
+      let champName = "N/A", champId = "Aatrox";
+      if (resMast.length > 0) {
+        champName = nombresChamps[resMast[0].championId];
+        champId = idsChamps[resMast[0].championId];
+      }
+
+      // E. KDA y RACHA DE RANKEDS (Americas)
+      // queue=420 filtra solo por Solo/Duo
+      const urlMatch = `https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=420&start=0&count=5&api_key=${API_KEY}`;
+      const resMatchIds = JSON.parse(UrlFetchApp.fetch(urlMatch).getContentText());
+      
+      let kda = "0/0/0";
+      let racha = "0W";
+      
+      if (resMatchIds.length > 0) {
+        let esRachaVictorias = null;
+        let contadorRacha = 0;
+
+        for (let m = 0; m < resMatchIds.length; m++) {
+          const urlDetalle = `https://americas.api.riotgames.com/lol/match/v5/matches/${resMatchIds[m]}?api_key=${API_KEY}`;
+          const resDetalle = JSON.parse(UrlFetchApp.fetch(urlDetalle).getContentText());
+          const p = resDetalle.info.participants.find(part => part.puuid === puuid);
+          
+          if (m === 0) kda = `${p.kills}/${p.deaths}/${p.assists}`;
+
+          if (esRachaVictorias === null) {
+            esRachaVictorias = p.win;
+            contadorRacha = 1;
+          } else if (p.win === esRachaVictorias) {
+            contadorRacha++;
+          } else {
+            break; 
+          }
         }
+        racha = esRachaVictorias ? `${contadorRacha}W 🔥` : `${contadorRacha}L ❄️`;
+      }
 
-        actualizarDesdeNube();
-        setInterval(actualizarDesdeNube, 60000); // Revisa el Excel cada minuto
-    </script>
-</body>
-</html>
+      // ESCRIBIR EN EL EXCEL (Columnas C a J)
+      hoja.getRange(i + 1, 3).setValue(rango);     
+      hoja.getRange(i + 1, 4).setValue(lp);        
+      hoja.getRange(i + 1, 5).setValue(resSum.summonerLevel); 
+      hoja.getRange(i + 1, 6).setValue(resSum.profileIconId); 
+      hoja.getRange(i + 1, 7).setValue(kda);       
+      hoja.getRange(i + 1, 8).setValue(champName); 
+      hoja.getRange(i + 1, 9).setValue(champId);   
+      hoja.getRange(i + 1, 10).setValue(racha); 
+
+      console.log(`Actualizado: ${nombre}`);
+      Utilities.sleep(1000); 
+
+    } catch (e) {
+      console.log(`Error con ${nombre}: ` + e);
+    }
+  }
+}
+
+function doGet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const hoja = ss.getSheetByName(NOMBRE_HOJA);
+  const datos = hoja.getDataRange().getValues();
+  let resultados = [];
+
+  for (let i = 1; i < datos.length; i++) {
+    resultados.push({
+      nombre: datos[i][0],
+      rango: datos[i][2],
+      lp: datos[i][3],
+      nivel: datos[i][4],
+      icono: datos[i][5],
+      kda: datos[i][6],
+      maestria: datos[i][7],
+      maestriaId: datos[i][8],
+      racha: datos[i][9]
+    });
+  }
+
+  return ContentService.createTextOutput(JSON.stringify(resultados))
+    .setMimeType(ContentService.MimeType.JSON);
+}
