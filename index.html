@@ -1,1 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Team Tracker Cloud</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 50px; }
+        .box { border: 2px solid #00ccff; padding: 25px; border-radius: 15px; text-align: center; width: 320px; background: #050505; box-shadow: 0 0 20px rgba(0, 204, 255, 0.2); }
+        .rango-tag { background: #ffcc00; color: #000; font-weight: bold; padding: 6px 15px; border-radius: 5px; display: inline-block; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; }
+        .icon { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #00ccff; margin-bottom: 15px; }
+        h1 { margin: 0; font-size: 26px; }
+        .nivel { font-size: 42px; font-weight: bold; color: #00ccff; margin: 10px 0; }
+        .maestria-container { display: flex; align-items: center; justify-content: center; gap: 10px; color: #00ffcc; margin-bottom: 20px; font-style: italic; }
+        .champ-icon { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #00ffcc; }
+        .kda { color: #ffcc00; font-size: 22px; font-weight: bold; border-top: 1px solid #333; padding-top: 20px; }
+        #mensaje { position: fixed; top: 10px; font-size: 12px; color: #444; }
+    </style>
+</head>
+<body>
+    <div id="mensaje">Conectando con Google Cloud...</div>
+    <div id="contenedor" style="display: contents;"></div>
 
+    <script>
+        // AQUÍ PEGARÁS LA URL QUE TE DARÁ GOOGLE SHEETS MÁS ADELANTE
+        const WEB_APP_URL = "URL_DE_TU_SCRIPT_AQUI";
+
+        async function actualizarDesdeNube() {
+            try {
+                const response = await fetch(WEB_APP_URL);
+                const data = await response.json();
+                const contenedor = document.getElementById('contenedor');
+                document.getElementById('mensaje').innerText = "Sincronizado con Sheets";
+                contenedor.innerHTML = ""; 
+
+                data.forEach(p => {
+                    contenedor.innerHTML += `
+                        <div class="box">
+                            <div class="rango-tag">${p.rango} - ${p.lp}</div>
+                            <br>
+                            <img class="icon" src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/profileicon/${p.icono}.png">
+                            <h1>${p.nombre}</h1>
+                            <div class="nivel">Nivel ${p.nivel}</div>
+                            <div class="maestria-container">
+                                <img class="champ-icon" src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/${p.maestriaId}.png">
+                                <span>Main: ${p.maestria}</span>
+                            </div>
+                            <div class="kda">KDA: ${p.kda}</div>
+                        </div>
+                    `;
+                });
+            } catch (e) { 
+                document.getElementById('contenedor').innerHTML = "<h1>Esperando datos de Excel...</h1>"; 
+            }
+        }
+
+        actualizarDesdeNube();
+        setInterval(actualizarDesdeNube, 60000); // Revisa el Excel cada minuto
+    </script>
+</body>
+</html>
