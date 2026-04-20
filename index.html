@@ -2,60 +2,151 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Team Tracker Cloud - Elite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard LAN - Team Grey</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 50px; }
-        .box { border: 2px solid #00ccff; padding: 25px; border-radius: 15px; text-align: center; width: 320px; background: #050505; box-shadow: 0 0 20px rgba(0, 204, 255, 0.2); position: relative; }
-        .rango-tag { background: #ffcc00; color: #000; font-weight: bold; padding: 6px 15px; border-radius: 5px; display: inline-block; margin-bottom: 5px; font-size: 14px; text-transform: uppercase; }
-        .racha { font-size: 22px; font-weight: bold; margin-bottom: 15px; }
-        .icon { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #00ccff; margin-bottom: 15px; }
-        h1 { margin: 0; font-size: 26px; }
-        .nivel { font-size: 42px; font-weight: bold; color: #00ccff; margin: 10px 0; }
-        .maestria-container { display: flex; align-items: center; justify-content: center; gap: 10px; color: #00ffcc; margin-bottom: 20px; font-style: italic; }
-        .champ-icon { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #00ffcc; }
-        .kda { color: #ffcc00; font-size: 22px; font-weight: bold; border-top: 1px solid #333; padding-top: 20px; }
-        #mensaje { position: fixed; top: 10px; font-size: 12px; color: #444; }
+        :root {
+            --bg: #060608;
+            --card: #121217;
+            --accent: #00cfbc;
+            --gold: #f0e6d2;
+            --master: #ff79c6;
+            --diamante: #3498db;
+            --esmeralda: #2ecc71;
+            --oro: #f1c40f;
+        }
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 10px;
+        }
+        h1 { color: var(--gold); letter-spacing: 5px; text-transform: uppercase; font-size: 22px; margin-bottom: 30px; }
+        
+        .leaderboard-card {
+            background: var(--card);
+            border: 1px solid #25262d;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 950px;
+            overflow-x: auto;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th {
+             text-align: left;
+             color: #a0a0a8;
+             font-size: 13px;
+             text-transform: uppercase;
+             padding: 20px 15px;
+             border-bottom: 1px solid #25262d;
+        }
+        td { padding: 18px 15px; border-bottom: 1px solid #1e1f24; font-size: 14px; }
+
+        .player-info { display: flex; align-items: center; gap: 15px; }
+        .player-icon { width: 40px; height: 40px; border-radius: 4px; border: 1px solid #333; }
+        .player-name { font-weight: bold; font-size: 16px; text-decoration: none; }
+
+        .rank-tag {
+            padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold;
+            text-transform: uppercase; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .rank-master { color: var(--master); border-color: var(--master); }
+        .rank-diamante { color: var(--diamante); border-color: var(--diamante); }
+        .rank-esmeralda { color: var(--esmeralda); border-color: var(--esmeralda); }
+        .rank-oro { color: var(--oro); border-color: var(--oro); }
+
+        .lp-text { color: #666; font-size: 12px; margin-top: 4px; }
+        .win-text { color: #2ecc71; font-weight: bold; }
+        .loss-text { color: #e74c3c; font-weight: bold; }
+        .winrate-main { font-size: 15px; font-weight: bold; display: block; }
+        .kda-box { font-weight: bold; color: #eee; }
+        .racha-fire { font-size: 16px; }
+
+        #mensaje { margin-bottom: 10px; font-size: 12px; color: #444; }
     </style>
 </head>
 <body>
-    <div id="mensaje">Conectando con Google Cloud...</div>
-    <div id="contenedor" style="display: contents;"></div>
+    <h1>Leaderboard LAN</h1>
+    <div id="mensaje">Sincronizando con la nube...</div>
+    
+    <div class="leaderboard-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Invocador</th>
+                    <th>Rango / LP</th>
+                    <th>W/L (WR%)</th>
+                    <th>KDA (AVG)</th>
+                    <th>Racha</th>
+                </tr>
+            </thead>
+            <tbody id="table-content">
+                </tbody>
+        </table>
+    </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzn8i3Ct33TniSvK8fhlkI52upaUrqBz5vUtbX2WhjQeGWT2L3S5PpJfqwGHZ0oJGBYvg/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbytXzt3sOFyKwpR_EjUdclYIaUWJtR-RBTJbRWLz9QOd9doAWO5r-fw2Y3zim47M1dyeA/exec";
 
-        async function actualizarDesdeNube() {
+        function getPlayerColor(name) {
+            const colors = {
+                'Grey#W8TM': '#ffb347',
+                'Azzz#Bou': '#b19cd9',
+                'Raven#Aisha': '#ffb7ce',
+                'Bodkin Arrow#bhr': '#77dd77',
+                'Zenix#4025': '#c3aed6',
+                'ForjaEterna#ETRN': '#aec6cf'
+            };
+            return colors[name] || '#ffffff';
+        }
+
+        async function cargarDatos() {
             try {
                 const response = await fetch(WEB_APP_URL);
                 const data = await response.json();
-                const contenedor = document.getElementById('contenedor');
-                document.getElementById('mensaje').innerText = "Sincronizado con Sheets";
-                contenedor.innerHTML = ""; 
+                const table = document.getElementById('table-content');
+                document.getElementById('mensaje').innerText = "Última actualización: " + new Date().toLocaleTimeString();
+                table.innerHTML = "";
 
                 data.forEach(p => {
-                    const colorRacha = p.racha.includes('W') ? '#00ff00' : '#ff4d4d';
-                    contenedor.innerHTML += `
-                        <div class="box">
-                            <div class="rango-tag">${p.rango} - ${p.lp}</div>
-                            <div class="racha" style="color: ${colorRacha}">${p.racha}</div>
-                            <img class="icon" src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/profileicon/${p.icono}.png">
-                            <h1>${p.nombre}</h1>
-                            <div class="nivel">Nivel ${p.nivel}</div>
-                            <div class="maestria-container">
-                                <img class="champ-icon" src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/${p.maestriaId}.png">
-                                <span>Main: ${p.maestria}</span>
-                            </div>
-                            <div class="kda">Último KDA: ${p.kda}</div>
-                        </div>
+                    const r = (p.rango || "").toLowerCase();
+                    const rClass = r.includes('master') ? 'rank-master' : r.includes('diamond') ? 'rank-diamante' : r.includes('emerald') ? 'rank-esmeralda' : r.includes('gold') ? 'rank-oro' : '';
+                    const customColor = getPlayerColor(p.jugador);
+                    const nameParts = p.jugador.split('#');
+                    const opggUrl = `https://www.op.gg/summoners/lan/${nameParts[0]}-${nameParts[1]}`;
+
+                    table.innerHTML += `
+                        <tr>
+                            <td>
+                                <div class="player-info">
+                                    <img class="player-icon" src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/profileicon/${p.icono}.png">
+                                    <a href="${opggUrl}" target="_blank" class="player-name" style="color: ${customColor}">${p.jugador}</a>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="rank-tag ${rClass}">${p.rango || 'SIN RANGO'}</span>
+                                <div class="lp-text">${p.lp || '0 LP'}</div>
+                            </td>
+                            <td>
+                                <span class="winrate-main">${p.winrate}</span>
+                                <span class="win-text">${p.wins}W</span> / <span class="loss-text">${p.losses}L</span>
+                            </td>
+                            <td class="kda-box">${p.kda}</td>
+                            <td class="racha-fire">${p.racha}</td>
+                        </tr>
                     `;
                 });
-            } catch (e) { 
-                document.getElementById('contenedor').innerHTML = "<h1>Esperando datos de Excel...</h1>"; 
+            } catch (e) {
+                document.getElementById('mensaje').innerText = "Error al conectar.";
             }
         }
 
-        actualizarDesdeNube();
-        setInterval(actualizarDesdeNube, 60000); 
+        cargarDatos();
+        setInterval(cargarDatos, 60000);
     </script>
 </body>
 </html>
