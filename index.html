@@ -48,30 +48,33 @@
 
         .player-info { display: flex; align-items: center; gap: 15px; }
         .player-icon { width: 40px; height: 40px; border-radius: 4px; border: 1px solid #333; }
-        .player-name { font-weight: bold; font-size: 16px; text-decoration: none; }
+        .player-name { font-weight: bold; font-size: 16px; text-decoration: none; transition: 0.2s; }
+        .player-name:hover { opacity: 0.7; }
 
         .rank-tag {
             padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold;
             text-transform: uppercase; border: 1px solid rgba(255,255,255,0.1);
         }
+        /* Colores de Rango */
         .rank-master { color: var(--master); border-color: var(--master); }
-        .rank-diamante { color: var(--diamante); border-color: var(--diamante); }
-        .rank-esmeralda { color: var(--esmeralda); border-color: var(--esmeralda); }
-        .rank-oro { color: var(--oro); border-color: var(--oro); }
+        .rank-diamond, .rank-diamante { color: var(--diamante); border-color: var(--diamante); }
+        .rank-emerald, .rank-esmeralda { color: var(--esmeralda); border-color: var(--esmeralda); }
+        .rank-gold, .rank-oro { color: var(--oro); border-color: var(--oro); }
 
         .lp-text { color: #666; font-size: 12px; margin-top: 4px; }
         .win-text { color: #2ecc71; font-weight: bold; }
         .loss-text { color: #e74c3c; font-weight: bold; }
         .winrate-main { font-size: 15px; font-weight: bold; display: block; margin-bottom: 2px; }
         .kda-box { font-weight: bold; color: #eee; }
+        .racha-fire { font-size: 16px; font-weight: bold; }
 
-        #mensaje { margin-bottom: 15px; font-size: 12px; color: #555; }
+        #mensaje { margin-bottom: 15px; font-size: 12px; color: #555; font-style: italic; }
         .loading { padding: 40px; text-align: center; color: var(--gold); }
     </style>
 </head>
 <body>
-    <h1>Leaderboard LAN</h1>
-    <div id="mensaje">Sincronizando con la API de Riot...</div>
+    <h1>Leaderboard LAN - Team Grey</h1>
+    <div id="mensaje">Iniciando conexión con Google Cloud...</div>
     
     <div class="leaderboard-card">
         <table>
@@ -85,15 +88,16 @@
                 </tr>
             </thead>
             <tbody id="table-content">
-                <tr><td colspan="5" class="loading">Cargando datos...</td></tr>
+                <tr><td colspan="5" class="loading">Cargando datos del equipo...</td></tr>
             </tbody>
         </table>
     </div>
 
     <script>
-        // REEMPLAZA ESTO CON TU URL DE IMPLEMENTACIÓN /EXEC
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyFxPfnhgOkIHzHMJ3S2TERvDc0OCiWzSUrbLJEOTKSaCWxmE8UUgb9NXXzUxr6gWRZjA/exec";
+        // TU NUEVA URL DE APLICACIÓN WEB
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx6DNSyRLvuEP5KrStiqa_ohVKPD7O9W7tovp4gdZBCxrVOCxcUv6osxZ2NR8Ju3kj77Q/exec";
 
+        // Mantenemos tus colores pasteles personalizados
         function getPlayerColor(name) {
             const colors = {
                 'Grey#W8TM': '#ffb347',
@@ -112,42 +116,50 @@
                 const data = await response.json();
                 const table = document.getElementById('table-content');
                 
-                document.getElementById('mensaje').innerText = "Última actualización: " + new Date().toLocaleTimeString();
+                if (data.length === 0) {
+                    table.innerHTML = '<tr><td colspan="5" class="loading">El Excel parece estar vacío.</td></tr>';
+                    return;
+                }
+
+                document.getElementById('mensaje').innerText = "Sincronizado: " + new Date().toLocaleTimeString();
                 table.innerHTML = "";
 
                 data.forEach(p => {
                     const r = (p.rango || "").toLowerCase();
                     let rClass = '';
                     if (r.includes('master')) rClass = 'rank-master';
-                    else if (r.includes('diam')) rClass = 'rank-diamante';
-                    else if (r.includes('esmer')) rClass = 'rank-esmeralda';
-                    else if (r.includes('oro')) rClass = 'rank-oro';
+                    else if (r.includes('diam') || r.includes('diamond')) rClass = 'rank-diamante';
+                    else if (r.includes('esmer') || r.includes('emerald')) rClass = 'rank-esmeralda';
+                    else if (r.includes('oro') || r.includes('gold')) rClass = 'rank-oro';
 
                     const customColor = getPlayerColor(p.jugador);
+                    const nameParts = p.jugador.split('#');
+                    const opggUrl = `https://www.op.gg/summoners/lan/${encodeURIComponent(nameParts[0])}-${encodeURIComponent(nameParts[1] || '')}`;
 
                     table.innerHTML += `
                         <tr>
                             <td>
                                 <div class="player-info">
                                     <img class="player-icon" src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/profileicon/${p.icono}.png">
-                                    <span class="player-name" style="color: ${customColor}">${p.jugador}</span>
+                                    <a href="${opggUrl}" target="_blank" class="player-name" style="color: ${customColor}">${p.jugador}</a>
                                 </div>
                             </td>
                             <td>
                                 <span class="rank-tag ${rClass}">${p.rango || 'SIN RANGO'}</span>
-                                <div class="lp-text">${p.lp || '0'} LP</div>
+                                <div class="lp-text">${p.lp || '0 LP'}</div>
                             </td>
                             <td>
                                 <span class="winrate-main">${p.winrate || '0%'}</span>
                                 <span class="win-text">${p.wins || 0}W</span> / <span class="loss-text">${p.losses || 0}L</span>
                             </td>
                             <td class="kda-box">${p.kda || '0.00'}</td>
-                            <td>${p.racha || '--'}</td>
+                            <td class="racha-fire">${p.racha || '--'}</td>
                         </tr>
                     `;
                 });
             } catch (e) {
                 console.error(e);
+                document.getElementById('mensaje').innerText = "Error de conexión. Revisa la implementación del Script.";
             }
         }
 
