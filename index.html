@@ -245,6 +245,44 @@
         cards.innerHTML = `<div class="empty">Error: ${err.message}</div>`;
         status.textContent = '';
       }
+      .card{
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  animation: fadeUp .35s ease both;
+}
+
+.card:hover{
+  transform: translateY(-6px);
+  border-color: rgba(209,54,57,.55);
+  box-shadow: 0 16px 40px rgba(0,0,0,.45);
+}
+
+button{
+  transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+}
+
+button:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(209,54,57,.25);
+}
+
+.rank-icon{
+  transition: transform .25s ease;
+}
+
+.card:hover .rank-icon{
+  transform: scale(1.08) rotate(-2deg);
+}
+
+@keyframes fadeUp{
+  from{
+    opacity:0;
+    transform: translateY(12px);
+  }
+  to{
+    opacity:1;
+    transform: translateY(0);
+  }
+}
     }
   </script>
 </body>
