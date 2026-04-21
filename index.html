@@ -19,6 +19,7 @@
       --info:#60a5fa;
       --warn:#f59e0b;
       --purple:#a855f7;
+      --overlay: rgba(4, 8, 12, .72);
     }
 
     *{box-sizing:border-box}
@@ -35,15 +36,63 @@
       margin:0 auto;
     }
 
+    .banner{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:24px;
+      min-height:220px;
+      padding:24px;
+      margin-bottom:18px;
+      background:
+        linear-gradient(90deg, rgba(11,15,20,.95) 0%, rgba(11,15,20,.75) 45%, rgba(11,15,20,.25) 100%),
+        url('') center/cover no-repeat;
+      box-shadow:var(--shadow);
+      display:flex;
+      align-items:flex-end;
+    }
+
+    .banner::after{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.25) 100%);
+      pointer-events:none;
+    }
+
+    .banner-content{
+      position:relative;
+      z-index:1;
+      max-width:720px;
+    }
+
     h1{
       margin:0 0 8px;
-      font-size:32px;
+      font-size:34px;
       letter-spacing:.5px;
     }
 
     .sub{
       color:var(--muted);
-      margin-bottom:18px;
+      margin:0;
+    }
+
+    .banner-meta{
+      margin-top:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .pill{
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--text);
+      font-size:13px;
+      font-weight:700;
+      backdrop-filter: blur(8px);
     }
 
     .topbar{
@@ -90,6 +139,7 @@
       gap:14px;
       transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
       animation: fadeUp .35s ease both;
+      cursor:pointer;
     }
 
     .card:hover{
@@ -160,15 +210,99 @@
       background:rgba(255,255,255,.02);
     }
 
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(3,8,12,.78);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:9999;
+    }
+
+    .modal.open{
+      display:flex;
+    }
+
+    .modal-card{
+      width:min(980px, 100%);
+      border:1px solid var(--line);
+      border-radius:24px;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(17,24,32,.98), rgba(22,32,43,.98));
+      box-shadow:0 30px 80px rgba(0,0,0,.5);
+      position:relative;
+    }
+
+    .modal-banner{
+      min-height:220px;
+      padding:22px;
+      display:flex;
+      align-items:flex-end;
+      background:
+        linear-gradient(90deg, rgba(11,15,20,.92) 0%, rgba(11,15,20,.55) 45%, rgba(11,15,20,.20) 100%),
+        url('') center/cover no-repeat;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    .modal-content{
+      padding:18px;
+    }
+
+    .close-btn{
+      position:absolute;
+      top:14px;
+      right:14px;
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,.10);
+      color:#fff;
+      font-size:18px;
+      font-weight:800;
+      cursor:pointer;
+      z-index:2;
+    }
+
+    .detail-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .detail{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.05);
+      border-radius:14px;
+      padding:12px;
+    }
+
+    .detail .label{
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:6px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .detail .value{
+      font-size:17px;
+      font-weight:800;
+      word-break:break-word;
+    }
+
+    .value.good{ color:var(--good); }
+    .value.info{ color:var(--info); }
+    .value.warn{ color:var(--warn); }
+    .value.purple{ color:var(--purple); }
+
     @keyframes fadeUp{
-      from{
-        opacity:0;
-        transform: translateY(12px);
-      }
-      to{
-        opacity:1;
-        transform: translateY(0);
-      }
+      from{ opacity:0; transform: translateY(12px); }
+      to{ opacity:1; transform: translateY(0); }
     }
 
     @media (max-width: 640px){
@@ -176,13 +310,21 @@
       .cards{ grid-template-columns:1fr; }
       .card{ padding:14px; }
       .rank-icon{ width:50px; height:50px; min-width:50px; min-height:50px; }
+      .banner, .modal-banner{ min-height:180px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>LOL Tracker LAN</h1>
-    <div class="sub">Vista por tarjetas para tu equipo, estilo oscuro tipo Riot.</div>
+    <section id="banner" class="banner">
+      <div class="banner-content">
+        <h1>LOL Tracker LAN</h1>
+        <p class="sub">Vista por tarjetas para tu equipo, estilo oscuro tipo Riot.</p>
+        <div class="banner-meta" id="bannerMeta">
+          <span class="pill">Cargando campeón destacado...</span>
+        </div>
+      </div>
+    </section>
 
     <div class="topbar">
       <button onclick="loadData()">Cargar datos</button>
@@ -196,9 +338,26 @@
     <div class="footer">Datos cargados desde Google Sheets con tu CSV público.</div>
   </div>
 
+  <div id="modal" class="modal" onclick="closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="close-btn" onclick="closeModal()">×</div>
+      <div id="modalBanner" class="modal-banner">
+        <div class="banner-content">
+          <h1 id="modalName">Jugador</h1>
+          <p class="sub" id="modalTag"></p>
+          <div class="banner-meta" id="modalMeta"></div>
+        </div>
+      </div>
+      <div class="modal-content">
+        <div class="detail-grid" id="modalDetails"></div>
+      </div>
+    </div>
+  </div>
+
   <script src="./data.js"></script>
   <script>
     const STORAGE_KEY = 'lol-tracker-cards';
+    let currentData = [];
 
     function getRankIcon(rango) {
       const r = String(rango || '').toLowerCase();
@@ -215,8 +374,78 @@
       return '';
     }
 
+    function getChampionSplash(name) {
+      const champ = String(name || '').trim();
+      if (!champ) return '';
+      return `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ}_0.jpg`;
+    }
+
     function cleanValue(v) {
       return (v === null || v === undefined) ? '' : String(v);
+    }
+
+    function toNumber(value) {
+      const n = Number(String(value).replace(/[^\d.-]/g, ''));
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function setBanner(row) {
+      const banner = document.getElementById('banner');
+      const meta = document.getElementById('bannerMeta');
+      const champ = row?.champMaestriaNombre || row?.ultimoCampeon || '';
+      const splash = getChampionSplash(champ);
+
+      if (splash) {
+        banner.style.background = `linear-gradient(90deg, rgba(11,15,20,.95) 0%, rgba(11,15,20,.75) 45%, rgba(11,15,20,.25) 100%), url('${splash}') center/cover no-repeat`;
+      }
+
+      meta.innerHTML = `
+        <span class="pill">Campeón destacado: ${cleanValue(champ) || 'Sin datos'}</span>
+        <span class="pill">Rango: ${cleanValue(row?.rango) || 'Sin datos'}</span>
+      `;
+    }
+
+    function openModal(row) {
+      const modal = document.getElementById('modal');
+      const modalBanner = document.getElementById('modalBanner');
+      const modalName = document.getElementById('modalName');
+      const modalTag = document.getElementById('modalTag');
+      const modalMeta = document.getElementById('modalMeta');
+      const modalDetails = document.getElementById('modalDetails');
+
+      const champ = row?.champMaestriaNombre || row?.ultimoCampeon || '';
+      const splash = getChampionSplash(champ);
+
+      modalName.textContent = cleanValue(row.jugador);
+      modalTag.textContent = row.tag ? `#${cleanValue(row.tag)}` : '';
+      modalMeta.innerHTML = `
+        <span class="pill">${cleanValue(row.rango) || 'Sin rango'}</span>
+        <span class="pill">${cleanValue(row.winRate) || '0%'}</span>
+        <span class="pill">${cleanValue(champ) || 'Sin campeón'}</span>
+      `;
+
+      if (splash) {
+        modalBanner.style.background = `linear-gradient(90deg, rgba(11,15,20,.95) 0%, rgba(11,15,20,.75) 45%, rgba(11,15,20,.25) 100%), url('${splash}') center/cover no-repeat`;
+      }
+
+      modalDetails.innerHTML = `
+        <div class="detail"><div class="label">LP</div><div class="value info">${cleanValue(row.lp)}</div></div>
+        <div class="detail"><div class="label">Nivel</div><div class="value">${cleanValue(row.nivel)}</div></div>
+        <div class="detail"><div class="label">Win Rate</div><div class="value warn">${cleanValue(row.winRate)}</div></div>
+        <div class="detail"><div class="label">Visión</div><div class="value good">${cleanValue(row.vision)}</div></div>
+        <div class="detail"><div class="label">KDA</div><div class="value">${cleanValue(row.kda)}</div></div>
+        <div class="detail"><div class="label">KP%</div><div class="value warn">${cleanValue(row.kp)}</div></div>
+        <div class="detail"><div class="label">DPM</div><div class="value purple">${cleanValue(row.dpm)}</div></div>
+        <div class="detail"><div class="label">Último Campeón</div><div class="value">${cleanValue(row.ultimoCampeon)}</div></div>
+        <div class="detail"><div class="label">Pentas</div><div class="value">${cleanValue(row.pentas)}</div></div>
+      `;
+
+      modal.classList.add('open');
+    }
+
+    function closeModal(event) {
+      if (event && event.target !== event.currentTarget) return;
+      document.getElementById('modal').classList.remove('open');
     }
 
     function renderCards(data, message = '') {
@@ -229,10 +458,10 @@
         return;
       }
 
-      cards.innerHTML = data.map(row => {
+      cards.innerHTML = data.map((row, idx) => {
         const icon = getRankIcon(row.rango);
         return `
-          <article class="card">
+          <article class="card" onclick="openModal(currentData[${idx}])">
             <div class="card-head">
               ${icon ? `<img class="rank-icon" src="${icon}" alt="${cleanValue(row.rango)}">` : ''}
               <div>
@@ -250,6 +479,7 @@
       }).join('');
 
       status.textContent = message;
+      if (data[0]) setBanner(data[0]);
     }
 
     function saveCards(data) {
@@ -266,10 +496,12 @@
       try {
         status.textContent = 'Cargando...';
         const data = await window.fetchData();
+        currentData = data;
         saveCards(data);
         renderCards(data, `Actualizado: ${new Date().toLocaleString()}`);
       } catch (err) {
         const saved = loadSavedCards();
+        currentData = saved;
         if (saved.length) {
           renderCards(saved, 'Mostrando datos guardados.');
         } else {
@@ -280,6 +512,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       const saved = loadSavedCards();
+      currentData = saved;
       if (saved.length) {
         renderCards(saved, 'Mostrando datos guardados.');
       }
