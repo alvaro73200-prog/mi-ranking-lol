@@ -104,4 +104,148 @@
 
     .tag{
       color:var(--muted);
-      
+      margin-top:4px;
+      font-size:13px;
+    }
+
+    .rank{
+      font-size:15px;
+      font-weight:700;
+      color:#f0f4f8;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:auto;
+    }
+
+    .stat{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.05);
+      border-radius:12px;
+      padding:10px;
+    }
+
+    .label{
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:6px;
+    }
+
+    .value{
+      font-size:18px;
+      font-weight:800;
+    }
+
+    .footer{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .status{
+      margin-top:12px;
+      color:var(--muted);
+    }
+
+    .empty{
+      grid-column:1/-1;
+      padding:20px;
+      border:1px dashed var(--line);
+      border-radius:16px;
+      color:var(--muted);
+      background:rgba(255,255,255,.02);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>LOL Tracker LAN</h1>
+    <div class="sub">Vista por tarjetas para tu equipo, estilo oscuro tipo Riot.</div>
+
+    <div class="topbar">
+      <button onclick="loadData()">Cargar datos</button>
+    </div>
+
+    <div id="cards" class="cards">
+      <div class="empty">Presiona “Cargar datos” para ver los jugadores.</div>
+    </div>
+
+    <div id="status" class="status"></div>
+    <div class="footer">Datos cargados desde Google Sheets con tu CSV público.</div>
+  </div>
+
+  <script src="./data.js"></script>
+  <script>
+    function getRankIcon(rango) {
+      const r = String(rango || '').toLowerCase();
+      if (r.includes('iron')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-iron.png';
+      if (r.includes('bronze')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-bronze.png';
+      if (r.includes('silver')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-silver.png';
+      if (r.includes('gold')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-gold.png';
+      if (r.includes('platinum')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-platinum.png';
+      if (r.includes('emerald')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-emerald.png';
+      if (r.includes('diamond')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-diamond.png';
+      if (r.includes('master')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-master.png';
+      if (r.includes('grandmaster')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-grandmaster.png';
+      if (r.includes('challenger')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-challenger.png';
+      return '';
+    }
+
+    async function loadData() {
+      const cards = document.getElementById('cards');
+      const status = document.getElementById('status');
+
+      try {
+        status.textContent = 'Cargando...';
+        const data = await window.fetchData();
+
+        if (!data.length) {
+          cards.innerHTML = '<div class="empty">No se encontraron datos.</div>';
+          status.textContent = '';
+          return;
+        }
+
+        cards.innerHTML = data.map(row => {
+          const icon = getRankIcon(row.rango);
+          return `
+            <article class="card">
+              <div class="card-head">
+                ${icon ? `<img class="rank-icon" src="${icon}" alt="${row.rango}">` : ''}
+                <div>
+                  <div class="name">${row.jugador || ''}</div>
+                  <div class="tag">${row.tag ? '#' + row.tag : ''}</div>
+                </div>
+              </div>
+
+              <div class="rank">${row.rango || ''}</div>
+
+              <div class="stats">
+                <div class="stat">
+                  <div class="label">LP</div>
+                  <div class="value">${row.lp || ''}</div>
+                </div>
+                <div class="stat">
+                  <div class="label">WR</div>
+                  <div class="value">${row.wr || ''}</div>
+                </div>
+                <div class="stat" style="grid-column:1/-1;">
+                  <div class="label">V/D</div>
+                  <div class="value">${row.vd || ''}</div>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+        status.textContent = `Actualizado: ${new Date().toLocaleString()}`;
+      } catch (err) {
+        cards.innerHTML = `<div class="empty">Error: ${err.message}</div>`;
+        status.textContent = '';
+      }
+    }
+  </script>
+</body>
+</html>
