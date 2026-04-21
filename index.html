@@ -1,311 +1,396 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LOL Tracker LAN</title>
-
+  <title>LOL Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root{
-      --bg:#0b0f14;
-      --panel:#111820;
-      --panel2:#16202b;
-      --text:#e7edf4;
-      --muted:#8a97a6;
-      --accent:#d13639;
-      --line:#243140;
-      --shadow:0 12px 30px rgba(0,0,0,.35);
+    :root {
+      --bg: #0b0f14;
+      --panel: #111822;
+      --panel-2: #161f2b;
+      --line: #243244;
+      --text: #e7edf5;
+      --muted: #9fb0c3;
+      --accent: #d13639;
+      --accent-2: #4cc9f0;
+      --good: #40c057;
+      --warn: #f59f00;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 18px;
     }
 
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      padding:24px;
-      background:linear-gradient(180deg,#091017 0%, #0b0f14 100%);
-      color:var(--text);
-      font-family:"Segoe UI", Inter, Arial, sans-serif;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #090d12 0%, #0b0f14 100%);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    .container{
-      max-width:1200px;
-      margin:0 auto;
+    .container {
+      width: min(1280px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
     }
 
-    h1{
-      margin:0 0 8px;
-      font-size:32px;
-      letter-spacing:.5px;
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
-    .sub{
-      color:var(--muted);
-      margin-bottom:18px;
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: .3px;
+      margin: 0;
     }
 
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:18px;
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
     }
 
-    button{
-      padding:10px 14px;
-      border:0;
-      border-radius:10px;
-      background:var(--accent);
-      color:#fff;
-      cursor:pointer;
-      font-weight:700;
+    .refresh {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: .2s;
     }
 
-    button:hover{filter:brightness(1.05)}
-
-    .cards{
-      display:grid;
-      grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
-      gap:18px;
+    .refresh:hover {
+      transform: translateY(-1px);
+      border-color: #33485f;
     }
 
-    .card{
-      background:linear-gradient(180deg,var(--panel) 0%, var(--panel2) 100%);
-      border:1px solid var(--line);
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      padding:16px;
-      min-height:220px;
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
-      animation: fadeUp .35s ease both;
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
     }
 
-    .card:hover{
-      transform: translateY(-6px);
-      border-color: rgba(209,54,57,.55);
-      box-shadow: 0 16px 40px rgba(0,0,0,.45);
+    .card {
+      background: linear-gradient(180deg, rgba(17,24,34,.96), rgba(13,18,26,.96));
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: transform .18s ease, border-color .18s ease;
     }
 
-    .card-head{
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-
-    .rank-icon{
-      width:50px;
-      height:50px;
-      min-width:50px;
-      min-height:50px;
-      object-fit:contain;
-      display:block;
-      transition: transform .25s ease;
-    }
-
-    .card:hover .rank-icon{
-      transform: scale(1.08) rotate(-2deg);
-    }
-
-    .name{
-      font-size:20px;
-      font-weight:800;
-      line-height:1.1;
-    }
-
-    .tag{
-      color:var(--muted);
-      margin-top:4px;
-      font-size:13px;
-    }
-
-    .rank{
-      font-size:15px;
-      font-weight:700;
-      color:#f0f4f8;
-    }
-
-    .stats{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:auto;
-    }
-
-    .stat{
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.05);
-      border-radius:12px;
-      padding:10px;
-    }
-
-    .label{
-      color:var(--muted);
-      font-size:12px;
-      margin-bottom:6px;
-    }
-
-    .value{
-      font-size:18px;
-      font-weight:800;
-    }
-
-    .footer{
-      margin-top:18px;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .status{
-      margin-top:12px;
-      color:var(--muted);
-    }
-
-    .empty{
-      grid-column:1/-1;
-      padding:20px;
-      border:1px dashed var(--line);
-      border-radius:16px;
-      color:var(--muted);
-      background:rgba(255,255,255,.02);
-    }
-
-    button{
-      transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
-    }
-
-    button:hover{
+    .card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 24px rgba(209,54,57,.25);
+      border-color: rgba(209,54,57,.4);
     }
 
-    @keyframes fadeUp{
-      from{
-        opacity:0;
-        transform: translateY(12px);
-      }
-      to{
-        opacity:1;
-        transform: translateY(0);
-      }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .player-name {
+      font-size: 20px;
+      font-weight: 800;
+      margin: 0;
+      line-height: 1.1;
+    }
+
+    .pentas-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      background: linear-gradient(135deg, #8f1dff, #d13639);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(209,54,57,.25);
+      white-space: nowrap;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .rank-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.05);
+    }
+
+    .rank-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      background: var(--panel-2);
+      border: 1px solid rgba(255,255,255,.06);
+      object-fit: cover;
+      flex: 0 0 auto;
+    }
+
+    .rank-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .rank {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .last-champ {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.05);
+      border-radius: 14px;
+      padding: 12px;
+      min-height: 74px;
+    }
+
+    .stat-label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 7px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.1;
+      word-break: break-word;
+    }
+
+    .stat-value.good { color: var(--good); }
+    .stat-value.warn { color: var(--warn); }
+    .stat-value.accent { color: var(--accent-2); }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-top: 2px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.05);
+    }
+
+    .chart-wrap {
+      margin-top: 20px;
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .chart-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 640px) {
+      .container { width: min(100% - 16px, 100%); }
+      .cards { grid-template-columns: 1fr; }
+      .card { padding: 14px; }
+      .rank-row { align-items: flex-start; }
+      .rank-icon { width: 48px; height: 48px; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>LOL Tracker LAN</h1>
-    <div class="sub">Vista por tarjetas para tu equipo, estilo oscuro tipo Riot.</div>
-
     <div class="topbar">
-      <button onclick="loadData()">Cargar datos</button>
+      <div>
+        <h1 class="title">LOL Tracker LAN</h1>
+        <p class="subtitle">Monitoreo de jugadores con estilo dashboard</p>
+      </div>
+      <button class="refresh" onclick="loadData()">
+        <i class="fa-solid fa-rotate"></i> Actualizar
+      </button>
     </div>
 
-    <div id="cards" class="cards">
-      <div class="empty">Presiona “Cargar datos” para ver los jugadores.</div>
-    </div>
+    <div id="cards" class="cards"></div>
 
-    <div id="status" class="status"></div>
-    <div class="footer">Datos cargados desde Google Sheets con tu CSV público.</div>
+    <div class="chart-wrap">
+      <h2 class="chart-title">LP por jugador</h2>
+      <canvas id="lpChart" height="110"></canvas>
+    </div>
   </div>
 
-  <script src="./data.js"></script>
   <script>
-    const STORAGE_KEY = 'lol-tracker-cards';
+    const DATA_URL = 'URL_DE_TU_APPS_SCRIPT_AQUI';
+    let lpChart;
 
-    function getRankIcon(rango) {
-      const r = String(rango || '').toLowerCase();
-      if (r.includes('iron')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-iron.png';
-      if (r.includes('bronze')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-bronze.png';
-      if (r.includes('silver')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-silver.png';
-      if (r.includes('gold')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-gold.png';
-      if (r.includes('platinum')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-platinum.png';
-      if (r.includes('emerald')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-emerald.png';
-      if (r.includes('diamond')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-diamond.png';
-      if (r.includes('master')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-master.png';
-      if (r.includes('grandmaster')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-grandmaster.png';
-      if (r.includes('challenger')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-challenger.png';
-      return '';
+    async function loadData() {
+      const res = await fetch(`${DATA_URL}?_=${Date.now()}`);
+      const data = await res.json();
+      renderCards(data);
+      renderChart(data);
     }
 
-    function renderCards(data, message = '') {
+    function renderCards(players) {
       const cards = document.getElementById('cards');
-      const status = document.getElementById('status');
+      cards.innerHTML = players.map(p => {
+        const pentas = Number(p.pentas || 0);
+        const pentaBadge = pentas > 0 ? `<div class="pentas-badge"><i class="fa-solid fa-star"></i> ${pentas} Pentas</div>` : '';
+        const lastChamp = p.ultimoCampeon || p.lastChampion || 'Sin datos';
+        const rankText = p.rango || 'Sin Rango';
+        const rankDetail = p.lp ? `${p.lp} LP` : '';
+        const vision = p.vision ?? '0';
+        const kp = p.kp ?? '0%';
+        const dpm = p.dpm ?? '0';
+        const kda = p.kda ?? '0.00';
 
-      if (!data.length) {
-        cards.innerHTML = '<div class="empty">No se encontraron datos.</div>';
-        status.textContent = message;
-        return;
-      }
-
-      cards.innerHTML = data.map(row => {
-        const icon = getRankIcon(row.rango);
         return `
           <article class="card">
-            <div class="card-head">
-              ${icon ? `<img class="rank-icon" src="${icon}" alt="${row.rango}">` : ''}
+            <div class="card-header">
               <div>
-                <div class="name">${row.jugador || ''}</div>
-                <div class="tag">${row.tag ? '#' + row.tag : ''}</div>
+                <h3 class="player-name">${p.jugador || 'Jugador'} ${p.icono ? `<span style="opacity:.0">.</span>` : ''}</h3>
+                <div class="meta">
+                  <span class="chip"><i class="fa-solid fa-ranking-star"></i> ${rankText}</span>
+                  <span class="chip"><i class="fa-solid fa-sack-dollar"></i> ${rankDetail}</span>
+                </div>
+              </div>
+              ${pentas ? pentaBadge : ''}
+            </div>
+
+            <div class="rank-row">
+              <img class="rank-icon" src="${getRankIcon(p.rango)}" alt="Rango">
+              <div class="rank-info">
+                <p class="rank">${rankText}</p>
+                <div class="last-champ"><i class="fa-solid fa-dragon"></i> Último Campeón: <strong>${lastChamp}</strong></div>
               </div>
             </div>
 
-            <div class="rank">${row.rango || ''}</div>
-
             <div class="stats">
               <div class="stat">
-                <div class="label">LP</div>
-                <div class="value">${row.lp || ''}</div>
+                <span class="stat-label">Visión</span>
+                <div class="stat-value accent">${vision}</div>
               </div>
               <div class="stat">
-                <div class="label">WR</div>
-                <div class="value">${row.wr || ''}</div>
+                <span class="stat-label">KP%</span>
+                <div class="stat-value">${kp}</div>
               </div>
-              <div class="stat" style="grid-column:1/-1;">
-                <div class="label">V/D</div>
-                <div class="value">${row.vd || ''}</div>
+              <div class="stat">
+                <span class="stat-label">DPM</span>
+                <div class="stat-value warn">${dpm}</div>
               </div>
+              <div class="stat">
+                <span class="stat-label">KDA</span>
+                <div class="stat-value good">${kda}</div>
+              </div>
+            </div>
+
+            <div class="footer-row">
+              <span class="chip"><i class="fa-solid fa-shield-halved"></i> ${p.lineaFavorita || '—'}</span>
+              <span class="chip"><i class="fa-solid fa-arrow-right-arrow-left"></i> ${p.lineaSecundaria || '—'}</span>
             </div>
           </article>
         `;
       }).join('');
-
-      status.textContent = message;
     }
 
-    function saveCards(data) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
+    function renderChart(players) {
+      const ctx = document.getElementById('lpChart');
+      const labels = players.map(p => p.jugador);
+      const values = players.map(p => Number(p.lp || 0));
 
-    function loadSavedCards() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
-    }
+      if (lpChart) lpChart.destroy();
 
-    async function loadData() {
-      const status = document.getElementById('status');
-      try {
-        status.textContent = 'Cargando...';
-        const data = await window.fetchData();
-        saveCards(data);
-        renderCards(data, `Actualizado: ${new Date().toLocaleString()}`);
-      } catch (err) {
-        const saved = loadSavedCards();
-        if (saved.length) {
-          renderCards(saved, 'Mostrando datos guardados.');
-        } else {
-          renderCards([], `Error: ${err.message}`);
+      lpChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'LP',
+            data: values,
+            backgroundColor: '#d13639'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#e7edf5' } }
+          },
+          scales: {
+            x: { ticks: { color: '#9fb0c3' }, grid: { color: 'rgba(255,255,255,.05)' } },
+            y: { ticks: { color: '#9fb0c3' }, grid: { color: 'rgba(255,255,255,.05)' } }
+          }
         }
-      }
+      });
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const saved = loadSavedCards();
-      if (saved.length) {
-        renderCards(saved, 'Mostrando datos guardados.');
-      }
-    });
+    function getRankIcon(rank) {
+      const r = (rank || '').toLowerCase();
+      if (r.includes('iron')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-global/default/v1/champion-icons/18.png';
+      if (r.includes('bronze')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-global/default/v1/champion-icons/62.png';
+      if (r.includes('silver')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-global/default/v1/champion-icons/25.png';
+      if (r.includes('gold')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-global/default/v1/champion-icons/81.png';
+      if (r.includes('platinum')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-global/default/v1/champion-icons/517.png';
+      if (r.includes('emerald')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-global/default/v1/champion-icons/157.png';
+      if (r.includes('diamond')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-global/default/v1/champion-icons/238.png';
+      if (r.includes('master')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-global/default/v1/champion-icons/134.png';
+      if (r.includes('grandmaster')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-global/default/v1/champion-icons/523.png';
+      if (r.includes('challenger')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-global/default/v1/champion-icons/777.png';
+      return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-global/default/v1/champion-icons/0.png';
+    }
+
+    loadData();
   </script>
 </body>
 </html>
