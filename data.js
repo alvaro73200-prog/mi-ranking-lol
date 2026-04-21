@@ -1,7 +1,7 @@
 // data.js
 window.fetchData = async function() {
   // Reemplaza esto con tu URL de Google Sheets (la que termina en /pub?output=csv)
-  const SHEET_CSV_URL = 'TU_URL_DE_CSV_AQUÍ'; 
+  const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYf88BuB-N4ZWgeQ_PQ4Nrk7onK2YRq5dsnwbxIlyYOpCL4GXjO4gnCSKahnqOEpRN269Rug_bWiJG/pub?output=csv'; 
 
   const response = await fetch(SHEET_CSV_URL);
   const reader = response.body.getReader();
