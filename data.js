@@ -1,56 +1,41 @@
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYf88BuB-N4ZWgeQ_PQ4Nrk7onK2YRq5dsnwbxIlyYOpCL4GXjO4gnCSKahnqOEpRN269Rug_bWiJG/pub?output=csv';
 
-window.fetchData = async function () {
-  const url = CSV_URL + '&t=' + Date.now();
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('No se pudo cargar el CSV');
-  const text = await res.text();
-  return parseCSV(text);
-};
-
 function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
-  if (lines.length < 2) return [];
-
-  const headers = splitCSVLine(lines[0]).map(h => h.trim());
-  const rows = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const values = splitCSVLine(lines[i]);
-    if (!values.length || values.every(v => !v.trim())) continue;
-
-    const obj = {};
-    headers.forEach((h, idx) => obj[h] = (values[idx] || '').trim());
-
-    rows.push({
-      jugador: obj['Nombre'] || '',
-      tag: obj['Tag'] || '',
-      rango: obj['Rango'] || '',
-      lp: obj['LP'] || '',
-      wr: obj['WinRate'] || '',
-      vd: `${obj['Wins'] || 0}W / ${obj['Losses'] || 0}L`
-    });
-  }
-
-  return rows;
+  return text
+    .trim()
+    .split(/\r?\n/)
+    .map(row => row.split(','));
 }
 
-function splitCSVLine(line) {
-  const result = [];
-  let current = '';
-  let insideQuotes = false;
+async function fetchData() {
+  const url = `${CSV_URL}?_=${Date.now()}`;
+  const response = await fetch(url, { cache: 'no-store' });
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      insideQuotes = !insideQuotes;
-    } else if (char === ',' && !insideQuotes) {
-      result.push(current);
-      current = '';
-    } else {
-      current += char;
-    }
+  if (!response.ok) {
+    throw new Error(`Error al cargar CSV: ${response.status}`);
   }
-  result.push(current);
-  return result;
+
+  const csvText = await response.text();
+  const rows = parseCSV(csvText);
+
+  if (!rows.length) return [];
+
+  const data = rows.slice(1).map(row => ({
+    jugador: row[0] || '',
+    tag: row[1] || '',
+    rango: row[2] || '',
+    lp: row[3] || '',
+    nivel: row[4] || '',
+    kda: row[6] || '',
+    winRate: row[11] || '',
+    vision: row[16] || '',
+    kp: row[17] || '',
+    dpm: row[18] || '',
+    ultimoCampeon: row[19] || '',
+    pentas: row[20] || ''
+  }));
+
+  return data;
 }
+
+window.fetchData = fetchData;
