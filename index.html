@@ -41,11 +41,11 @@
 
     .title{
       margin:0 0 18px;
-      font-size:44px;
+      font-size:48px;
       font-weight:900;
       letter-spacing:1px;
       font-family:"Trebuchet MS","Segoe UI",Arial,sans-serif;
-      text-align:left;
+      text-align:center;
       color:#f4f7fb;
       text-shadow:0 8px 24px rgba(0,0,0,.35);
     }
@@ -53,7 +53,7 @@
     .topbar{
       display:flex;
       align-items:center;
-      justify-content:space-between;
+      justify-content:center;
       gap:12px;
       flex-wrap:wrap;
       margin-bottom:18px;
@@ -90,8 +90,8 @@
       border:1px solid var(--line);
       border-radius:18px;
       box-shadow:var(--shadow);
-      padding:16px;
-      min-height:260px;
+      padding:18px;
+      min-height:280px;
       display:flex;
       flex-direction:column;
       gap:14px;
@@ -121,6 +121,41 @@
       box-shadow: 0 16px 40px rgba(0,0,0,.45);
     }
 
+    .profile-wrap{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      margin-top:2px;
+      width:100%;
+    }
+
+    .level-badge{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.04em;
+      color:#fff;
+      padding:4px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.12);
+      text-align:center;
+      min-width:44px;
+    }
+
+    .profile-icon{
+      width:72px;
+      height:72px;
+      border-radius:50%;
+      border:2px solid rgba(255,255,255,.18);
+      object-fit:cover;
+      object-position:center;
+      background:transparent;
+      box-shadow:0 10px 22px rgba(0,0,0,.35);
+      display:block;
+    }
+
     .card-head{
       display:flex;
       align-items:center;
@@ -128,6 +163,7 @@
       gap:12px;
       flex-direction:column;
       text-align:center;
+      margin-top:2px;
     }
 
     .name{
@@ -135,6 +171,7 @@
       font-weight:800;
       line-height:1.1;
       text-align:center;
+      word-break:break-word;
     }
 
     .tag{
@@ -154,37 +191,7 @@
       gap:8px;
       flex-wrap:wrap;
       text-align:center;
-    }
-
-    .profile-wrap{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      margin-top:2px;
-    }
-
-    .level-badge{
-      font-size:12px;
-      font-weight:900;
-      letter-spacing:.04em;
-      color:#fff;
-      padding:4px 10px;
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.1);
-      text-align:center;
-    }
-
-    .profile-icon{
-      width:64px;
-      height:64px;
-      border-radius:50%;
-      border:2px solid rgba(255,255,255,.15);
-      object-fit:cover;
-      background:#111820;
-      box-shadow:0 8px 20px rgba(0,0,0,.35);
+      margin-top:auto;
     }
 
     .center-text{
@@ -214,6 +221,7 @@
       border-radius:16px;
       color:var(--muted);
       background:rgba(255,255,255,.02);
+      text-align:center;
     }
 
     .modal{
@@ -222,10 +230,10 @@
       display:none;
       align-items:center;
       justify-content:center;
-      background:rgba(3, 8, 12, .82);
-      backdrop-filter: blur(8px);
+      background:rgba(3, 8, 12, .84);
+      backdrop-filter: blur(10px);
       z-index:9999;
-      padding:18px;
+      padding:24px;
     }
 
     .modal.open{
@@ -233,37 +241,37 @@
     }
 
     .modal-card{
-      width:min(980px, 100%);
-      border-radius:24px;
+      width:min(1040px, 100%);
+      border-radius:28px;
       overflow:hidden;
       border:1px solid rgba(255,255,255,.08);
       background:linear-gradient(180deg, rgba(17,24,32,.98), rgba(22,32,43,.98));
-      box-shadow:0 30px 80px rgba(0,0,0,.55);
+      box-shadow:0 32px 90px rgba(0,0,0,.6);
       color:var(--text);
       position:relative;
     }
 
     .modal-banner{
-      min-height:220px;
-      padding:22px;
+      min-height:250px;
+      padding:26px;
       display:flex;
       align-items:flex-end;
       background:
-        linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.65) 45%, rgba(11,15,20,.2) 100%),
+        linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.68) 45%, rgba(11,15,20,.2) 100%),
         center/cover no-repeat;
       border-bottom:1px solid rgba(255,255,255,.06);
     }
 
     .modal-content{
-      padding:18px;
+      padding:24px;
     }
 
     .modal-close{
       position:absolute;
       top:14px;
       right:14px;
-      width:40px;
-      height:40px;
+      width:42px;
+      height:42px;
       border:0;
       border-radius:50%;
       background:rgba(255,255,255,.10);
@@ -276,16 +284,16 @@
 
     .modal-details{
       display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
-      gap:12px;
-      margin-top:14px;
+      grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+      gap:14px;
+      margin-top:16px;
     }
 
     .modal-item{
       background:rgba(255,255,255,.03);
       border:1px solid rgba(255,255,255,.06);
-      border-radius:14px;
-      padding:12px;
+      border-radius:16px;
+      padding:14px;
     }
 
     .modal-item .label{
@@ -297,7 +305,7 @@
     }
 
     .modal-item .value{
-      font-size:17px;
+      font-size:18px;
       font-weight:800;
       word-break:break-word;
     }
@@ -308,27 +316,29 @@
     .value.purple{ color:var(--purple); }
 
     .champ-card{
-      margin-top:14px;
+      margin-top:16px;
       display:flex;
       align-items:center;
-      gap:12px;
-      padding:12px;
-      border-radius:16px;
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.06);
+      gap:14px;
+      padding:14px 16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
       width:fit-content;
+      box-shadow:0 10px 22px rgba(0,0,0,.18);
     }
 
     .champ-card img{
-      width:56px;
-      height:56px;
-      border-radius:14px;
+      width:60px;
+      height:60px;
+      border-radius:16px;
       object-fit:cover;
-      border:1px solid rgba(255,255,255,.1);
+      border:1px solid rgba(255,255,255,.12);
+      background:#111820;
     }
 
     .champ-card .champ-name{
-      font-size:16px;
+      font-size:17px;
       font-weight:900;
       color:#fff;
       line-height:1.1;
@@ -337,7 +347,7 @@
     .champ-card .champ-sub{
       font-size:12px;
       color:var(--muted);
-      margin-top:3px;
+      margin-top:4px;
     }
 
     @keyframes fadeUp{
@@ -354,10 +364,11 @@
     @media (max-width: 640px){
       body{ padding:16px; }
       .cards{ grid-template-columns:1fr; }
-      .card{ padding:14px; min-height:240px; }
-      .title{ font-size:36px; }
-      .rank-icon{ width:50px; height:50px; min-width:50px; min-height:50px; }
-      .modal-banner{ min-height:180px; }
+      .card{ padding:16px; min-height:260px; }
+      .title{ font-size:38px; }
+      .profile-icon{ width:68px; height:68px; }
+      .modal{ padding:14px; }
+      .modal-banner{ min-height:200px; }
       .champ-card{ width:100%; }
     }
   </style>
@@ -383,7 +394,7 @@
       <button class="modal-close" onclick="closeModal()">×</button>
       <div id="modalBanner" class="modal-banner">
         <div class="banner-content">
-          <h1 id="modalTitle" style="margin:0 0 6px;font-size:34px;">Jugador</h1>
+          <h1 id="modalTitle" style="margin:0 0 8px;font-size:36px;">Jugador</h1>
           <p id="modalSubtitle" style="margin:0;color:var(--muted);font-weight:700;"></p>
           <div id="modalChampCard" class="champ-card" style="display:none;"></div>
         </div>
@@ -463,8 +474,8 @@
       subtitle.textContent = row.tag ? `#${row.tag}` : '';
 
       banner.style.background = splash
-        ? `linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.65) 45%, rgba(11,15,20,.2) 100%), url('${splash}') center/cover no-repeat`
-        : `linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.65) 45%, rgba(11,15,20,.2) 100%)`;
+        ? `linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.68) 45%, rgba(11,15,20,.2) 100%), url('${splash}') center/cover no-repeat`
+        : `linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.68) 45%, rgba(11,15,20,.2) 100%)`;
 
       if (champ) {
         champCard.style.display = 'flex';
