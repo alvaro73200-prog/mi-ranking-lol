@@ -79,6 +79,14 @@
       display:flex;
       flex-direction:column;
       gap:14px;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+      animation: fadeUp .35s ease both;
+    }
+
+    .card:hover{
+      transform: translateY(-6px);
+      border-color: rgba(209,54,57,.55);
+      box-shadow: 0 16px 40px rgba(0,0,0,.45);
     }
 
     .card-head{
@@ -94,6 +102,11 @@
       min-height:56px;
       object-fit:contain;
       display:block;
+      transition: transform .25s ease;
+    }
+
+    .card:hover .rank-icon{
+      transform: scale(1.08) rotate(-2deg);
     }
 
     .name{
@@ -159,17 +172,6 @@
       background:rgba(255,255,255,.02);
     }
 
-    .card{
-      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
-      animation: fadeUp .35s ease both;
-    }
-
-    .card:hover{
-      transform: translateY(-6px);
-      border-color: rgba(209,54,57,.55);
-      box-shadow: 0 16px 40px rgba(0,0,0,.45);
-    }
-
     button{
       transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
     }
@@ -177,14 +179,6 @@
     button:hover{
       transform: translateY(-2px);
       box-shadow: 0 10px 24px rgba(209,54,57,.25);
-    }
-
-    .rank-icon{
-      transition: transform .25s ease;
-    }
-
-    .card:hover .rank-icon{
-      transform: scale(1.08) rotate(-2deg);
     }
 
     @keyframes fadeUp{
@@ -218,6 +212,8 @@
 
   <script src="./data.js"></script>
   <script>
+    const STORAGE_KEY = 'lol-tracker-cards';
+
     function getRankIcon(rango) {
       const r = String(rango || '').toLowerCase();
       if (r.includes('iron')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-iron.png';
@@ -233,58 +229,83 @@
       return '';
     }
 
-    async function loadData() {
+    function renderCards(data, message = '') {
       const cards = document.getElementById('cards');
       const status = document.getElementById('status');
 
+      if (!data.length) {
+        cards.innerHTML = '<div class="empty">No se encontraron datos.</div>';
+        status.textContent = message;
+        return;
+      }
+
+      cards.innerHTML = data.map(row => {
+        const icon = getRankIcon(row.rango);
+        return `
+          <article class="card">
+            <div class="card-head">
+              ${icon ? `<img class="rank-icon" src="${icon}" alt="${row.rango}">` : ''}
+              <div>
+                <div class="name">${row.jugador || ''}</div>
+                <div class="tag">${row.tag ? '#' + row.tag : ''}</div>
+              </div>
+            </div>
+
+            <div class="rank">${row.rango || ''}</div>
+
+            <div class="stats">
+              <div class="stat">
+                <div class="label">LP</div>
+                <div class="value">${row.lp || ''}</div>
+              </div>
+              <div class="stat">
+                <div class="label">WR</div>
+                <div class="value">${row.wr || ''}</div>
+              </div>
+              <div class="stat" style="grid-column:1/-1;">
+                <div class="label">V/D</div>
+                <div class="value">${row.vd || ''}</div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      status.textContent = message;
+    }
+
+    function saveCards(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadSavedCards() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    }
+
+    async function loadData() {
+      const status = document.getElementById('status');
       try {
         status.textContent = 'Cargando...';
         const data = await window.fetchData();
-
-        if (!data.length) {
-          cards.innerHTML = '<div class="empty">No se encontraron datos.</div>';
-          status.textContent = '';
-          return;
-        }
-
-        cards.innerHTML = data.map(row => {
-          const icon = getRankIcon(row.rango);
-          return `
-            <article class="card">
-              <div class="card-head">
-                ${icon ? `<img class="rank-icon" src="${icon}" alt="${row.rango}">` : ''}
-                <div>
-                  <div class="name">${row.jugador || ''}</div>
-                  <div class="tag">${row.tag ? '#' + row.tag : ''}</div>
-                </div>
-              </div>
-
-              <div class="rank">${row.rango || ''}</div>
-
-              <div class="stats">
-                <div class="stat">
-                  <div class="label">LP</div>
-                  <div class="value">${row.lp || ''}</div>
-                </div>
-                <div class="stat">
-                  <div class="label">WR</div>
-                  <div class="value">${row.wr || ''}</div>
-                </div>
-                <div class="stat" style="grid-column:1/-1;">
-                  <div class="label">V/D</div>
-                  <div class="value">${row.vd || ''}</div>
-                </div>
-              </div>
-            </article>
-          `;
-        }).join('');
-
-        status.textContent = `Actualizado: ${new Date().toLocaleString()}`;
+        saveCards(data);
+        renderCards(data, `Actualizado: ${new Date().toLocaleString()}`);
       } catch (err) {
-        cards.innerHTML = `<div class="empty">Error: ${err.message}</div>`;
-        status.textContent = '';
+        const saved = loadSavedCards();
+        if (saved.length) {
+          renderCards(saved, 'Mostrando datos guardados.');
+        } else {
+          renderCards([], `Error: ${err.message}`);
+        }
       }
     }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = loadSavedCards();
+      if (saved.length) {
+        renderCards(saved, 'Mostrando datos guardados.');
+      }
+    });
   </script>
 </body>
 </html>
