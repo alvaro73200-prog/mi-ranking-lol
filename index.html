@@ -33,20 +33,27 @@
   <script src="./data.js"></script>
   <script>
     async function loadData() {
-      const output = document.getElementById('output');
-      try {
-        const data = await window.fetchData();
-        if (!data.length) {
-          output.textContent = 'No se encontraron datos.';
-          return;
-        }
-        output.textContent = data.map(row =>
-          `${row.jugador}${row.tag ? '#' + row.tag : ''} | ${row.rango} | ${row.lp} LP | WR ${row.wr} | ${row.vd}`
-        ).join('\n');
-      } catch (err) {
-        output.textContent = 'Error: ' + err.message;
-      }
+  const tbody = document.getElementById('tableBody');
+  try {
+    const data = await window.fetchData();
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:12px;">No se encontraron datos.</td></tr>';
+      return;
     }
+
+    tbody.innerHTML = data.map(row => `
+      <tr>
+        <td style="padding:12px;border-bottom:1px solid #333;">${row.jugador}${row.tag ? '#' + row.tag : ''}</td>
+        <td style="padding:12px;border-bottom:1px solid #333;">${row.rango}</td>
+        <td style="padding:12px;border-bottom:1px solid #333;">${row.lp} LP</td>
+        <td style="padding:12px;border-bottom:1px solid #333;">${row.wr}</td>
+        <td style="padding:12px;border-bottom:1px solid #333;">${row.vd}</td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5" style="padding:12px;">Error: ${err.message}</td></tr>`;
+  }
+}
   </script>
 </body>
 </html>
