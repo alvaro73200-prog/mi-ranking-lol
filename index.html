@@ -19,7 +19,10 @@
       --info:#60a5fa;
       --warn:#f59e0b;
       --purple:#a855f7;
-      --overlay: rgba(4, 8, 12, .72);
+      --emerald:#19c37d;
+      --gold:#f5c542;
+      --diamond:#4aa3ff;
+      --master:#a855f7;
     }
 
     *{box-sizing:border-box}
@@ -36,63 +39,15 @@
       margin:0 auto;
     }
 
-    .banner{
-      position:relative;
-      overflow:hidden;
-      border:1px solid var(--line);
-      border-radius:24px;
-      min-height:220px;
-      padding:24px;
-      margin-bottom:18px;
-      background:
-        linear-gradient(90deg, rgba(11,15,20,.95) 0%, rgba(11,15,20,.75) 45%, rgba(11,15,20,.25) 100%),
-        url('') center/cover no-repeat;
-      box-shadow:var(--shadow);
-      display:flex;
-      align-items:flex-end;
-    }
-
-    .banner::after{
-      content:'';
-      position:absolute;
-      inset:0;
-      background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.25) 100%);
-      pointer-events:none;
-    }
-
-    .banner-content{
-      position:relative;
-      z-index:1;
-      max-width:720px;
-    }
-
-    h1{
-      margin:0 0 8px;
-      font-size:34px;
-      letter-spacing:.5px;
-    }
-
-    .sub{
-      color:var(--muted);
-      margin:0;
-    }
-
-    .banner-meta{
-      margin-top:14px;
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-    }
-
-    .pill{
-      padding:8px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.08);
-      color:var(--text);
-      font-size:13px;
-      font-weight:700;
-      backdrop-filter: blur(8px);
+    .title{
+      margin:0 0 18px;
+      font-size:44px;
+      font-weight:900;
+      letter-spacing:1px;
+      font-family:"Trebuchet MS", "Segoe UI", Arial, sans-serif;
+      text-align:left;
+      color:#f4f7fb;
+      text-shadow:0 8px 24px rgba(0,0,0,.35);
     }
 
     .topbar{
@@ -128,18 +83,36 @@
     }
 
     .card{
-      background:linear-gradient(180deg,var(--panel) 0%, var(--panel2) 100%);
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg, rgba(17,24,32,.78) 0%, rgba(22,32,43,.92) 100%);
       border:1px solid var(--line);
       border-radius:18px;
       box-shadow:var(--shadow);
       padding:16px;
-      min-height:220px;
+      min-height:260px;
       display:flex;
       flex-direction:column;
       gap:14px;
-      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;
       animation: fadeUp .35s ease both;
       cursor:pointer;
+      background-size:cover;
+      background-position:center;
+    }
+
+    .card::before{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(11,15,20,.42) 0%, rgba(11,15,20,.88) 100%);
+      z-index:0;
+    }
+
+    .card > *{
+      position:relative;
+      z-index:1;
     }
 
     .card:hover{
@@ -151,33 +124,24 @@
     .card-head{
       display:flex;
       align-items:center;
+      justify-content:center;
       gap:12px;
-    }
-
-    .rank-icon{
-      width:54px;
-      height:54px;
-      min-width:54px;
-      min-height:54px;
-      object-fit:contain;
-      display:block;
-      transition: transform .25s ease;
-    }
-
-    .card:hover .rank-icon{
-      transform: scale(1.08) rotate(-2deg);
+      flex-direction:column;
+      text-align:center;
     }
 
     .name{
       font-size:20px;
       font-weight:800;
       line-height:1.1;
+      text-align:center;
     }
 
     .tag{
       color:var(--muted);
       margin-top:4px;
       font-size:13px;
+      text-align:center;
     }
 
     .rank{
@@ -186,9 +150,51 @@
       color:#f0f4f8;
       display:flex;
       align-items:center;
+      justify-content:center;
       gap:8px;
       flex-wrap:wrap;
+      text-align:center;
     }
+
+    .profile-wrap{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      margin-top:2px;
+    }
+
+    .level-badge{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.04em;
+      color:#fff;
+      padding:4px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.1);
+      text-align:center;
+    }
+
+    .profile-icon{
+      width:64px;
+      height:64px;
+      border-radius:50%;
+      border:2px solid rgba(255,255,255,.15);
+      object-fit:cover;
+      background:#111820;
+      box-shadow:0 8px 20px rgba(0,0,0,.35);
+    }
+
+    .center-text{
+      text-align:center;
+    }
+
+    .emerald{ color:var(--emerald); }
+    .gold{ color:var(--gold); }
+    .diamond{ color:var(--diamond); }
+    .master{ color:var(--master); }
 
     .footer{
       margin-top:18px;
@@ -210,121 +216,28 @@
       background:rgba(255,255,255,.02);
     }
 
-    .modal{
-      position:fixed;
-      inset:0;
-      background:rgba(3,8,12,.78);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      z-index:9999;
-    }
-
-    .modal.open{
-      display:flex;
-    }
-
-    .modal-card{
-      width:min(980px, 100%);
-      border:1px solid var(--line);
-      border-radius:24px;
-      overflow:hidden;
-      background:linear-gradient(180deg, rgba(17,24,32,.98), rgba(22,32,43,.98));
-      box-shadow:0 30px 80px rgba(0,0,0,.5);
-      position:relative;
-    }
-
-    .modal-banner{
-      min-height:220px;
-      padding:22px;
-      display:flex;
-      align-items:flex-end;
-      background:
-        linear-gradient(90deg, rgba(11,15,20,.92) 0%, rgba(11,15,20,.55) 45%, rgba(11,15,20,.20) 100%),
-        url('') center/cover no-repeat;
-      border-bottom:1px solid rgba(255,255,255,.06);
-    }
-
-    .modal-content{
-      padding:18px;
-    }
-
-    .close-btn{
-      position:absolute;
-      top:14px;
-      right:14px;
-      width:40px;
-      height:40px;
-      border-radius:50%;
-      display:grid;
-      place-items:center;
-      background:rgba(255,255,255,.10);
-      color:#fff;
-      font-size:18px;
-      font-weight:800;
-      cursor:pointer;
-      z-index:2;
-    }
-
-    .detail-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
-      gap:12px;
-      margin-top:14px;
-    }
-
-    .detail{
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.05);
-      border-radius:14px;
-      padding:12px;
-    }
-
-    .detail .label{
-      color:var(--muted);
-      font-size:12px;
-      margin-bottom:6px;
-      text-transform:uppercase;
-      letter-spacing:.04em;
-    }
-
-    .detail .value{
-      font-size:17px;
-      font-weight:800;
-      word-break:break-word;
-    }
-
-    .value.good{ color:var(--good); }
-    .value.info{ color:var(--info); }
-    .value.warn{ color:var(--warn); }
-    .value.purple{ color:var(--purple); }
-
     @keyframes fadeUp{
-      from{ opacity:0; transform: translateY(12px); }
-      to{ opacity:1; transform: translateY(0); }
+      from{
+        opacity:0;
+        transform: translateY(12px);
+      }
+      to{
+        opacity:1;
+        transform: translateY(0);
+      }
     }
 
     @media (max-width: 640px){
       body{ padding:16px; }
       .cards{ grid-template-columns:1fr; }
-      .card{ padding:14px; }
-      .rank-icon{ width:50px; height:50px; min-width:50px; min-height:50px; }
-      .banner, .modal-banner{ min-height:180px; }
+      .card{ padding:14px; min-height:240px; }
+      .title{ font-size:36px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <section id="banner" class="banner">
-      <div class="banner-content">
-        <h1>LOL Tracker LAN</h1>
-        <p class="sub">Vista por tarjetas para tu equipo, estilo oscuro tipo Riot.</p>
-        <div class="banner-meta" id="bannerMeta">
-          <span class="pill">Cargando campeón destacado...</span>
-        </div>
-      </div>
-    </section>
+    <h1 class="title">Tracker</h1>
 
     <div class="topbar">
       <button onclick="loadData()">Cargar datos</button>
@@ -336,22 +249,6 @@
 
     <div id="status" class="status"></div>
     <div class="footer">Datos cargados desde Google Sheets con tu CSV público.</div>
-  </div>
-
-  <div id="modal" class="modal" onclick="closeModal(event)">
-    <div class="modal-card" onclick="event.stopPropagation()">
-      <div class="close-btn" onclick="closeModal()">×</div>
-      <div id="modalBanner" class="modal-banner">
-        <div class="banner-content">
-          <h1 id="modalName">Jugador</h1>
-          <p class="sub" id="modalTag"></p>
-          <div class="banner-meta" id="modalMeta"></div>
-        </div>
-      </div>
-      <div class="modal-content">
-        <div class="detail-grid" id="modalDetails"></div>
-      </div>
-    </div>
   </div>
 
   <script src="./data.js"></script>
@@ -384,68 +281,21 @@
       return (v === null || v === undefined) ? '' : String(v);
     }
 
-    function toNumber(value) {
-      const n = Number(String(value).replace(/[^\d.-]/g, ''));
-      return Number.isFinite(n) ? n : 0;
+    function getRankClass(rango) {
+      const r = String(rango || '').toUpperCase();
+      if (r.includes('EMERALD')) return 'emerald';
+      if (r.includes('GOLD')) return 'gold';
+      if (r.includes('DIAMOND')) return 'diamond';
+      if (r.includes('MASTER')) return 'master';
+      return '';
     }
 
-    function setBanner(row) {
-      const banner = document.getElementById('banner');
-      const meta = document.getElementById('bannerMeta');
+    function setCardBackground(card, row) {
       const champ = row?.champMaestriaNombre || row?.ultimoCampeon || '';
       const splash = getChampionSplash(champ);
-
       if (splash) {
-        banner.style.background = `linear-gradient(90deg, rgba(11,15,20,.95) 0%, rgba(11,15,20,.75) 45%, rgba(11,15,20,.25) 100%), url('${splash}') center/cover no-repeat`;
+        card.style.backgroundImage = `linear-gradient(180deg, rgba(17,24,32,.78) 0%, rgba(22,32,43,.92) 100%), url('${splash}')`;
       }
-
-      meta.innerHTML = `
-        <span class="pill">Campeón destacado: ${cleanValue(champ) || 'Sin datos'}</span>
-        <span class="pill">Rango: ${cleanValue(row?.rango) || 'Sin datos'}</span>
-      `;
-    }
-
-    function openModal(row) {
-      const modal = document.getElementById('modal');
-      const modalBanner = document.getElementById('modalBanner');
-      const modalName = document.getElementById('modalName');
-      const modalTag = document.getElementById('modalTag');
-      const modalMeta = document.getElementById('modalMeta');
-      const modalDetails = document.getElementById('modalDetails');
-
-      const champ = row?.champMaestriaNombre || row?.ultimoCampeon || '';
-      const splash = getChampionSplash(champ);
-
-      modalName.textContent = cleanValue(row.jugador);
-      modalTag.textContent = row.tag ? `#${cleanValue(row.tag)}` : '';
-      modalMeta.innerHTML = `
-        <span class="pill">${cleanValue(row.rango) || 'Sin rango'}</span>
-        <span class="pill">${cleanValue(row.winRate) || '0%'}</span>
-        <span class="pill">${cleanValue(champ) || 'Sin campeón'}</span>
-      `;
-
-      if (splash) {
-        modalBanner.style.background = `linear-gradient(90deg, rgba(11,15,20,.95) 0%, rgba(11,15,20,.75) 45%, rgba(11,15,20,.25) 100%), url('${splash}') center/cover no-repeat`;
-      }
-
-      modalDetails.innerHTML = `
-        <div class="detail"><div class="label">LP</div><div class="value info">${cleanValue(row.lp)}</div></div>
-        <div class="detail"><div class="label">Nivel</div><div class="value">${cleanValue(row.nivel)}</div></div>
-        <div class="detail"><div class="label">Win Rate</div><div class="value warn">${cleanValue(row.winRate)}</div></div>
-        <div class="detail"><div class="label">Visión</div><div class="value good">${cleanValue(row.vision)}</div></div>
-        <div class="detail"><div class="label">KDA</div><div class="value">${cleanValue(row.kda)}</div></div>
-        <div class="detail"><div class="label">KP%</div><div class="value warn">${cleanValue(row.kp)}</div></div>
-        <div class="detail"><div class="label">DPM</div><div class="value purple">${cleanValue(row.dpm)}</div></div>
-        <div class="detail"><div class="label">Último Campeón</div><div class="value">${cleanValue(row.ultimoCampeon)}</div></div>
-        <div class="detail"><div class="label">Pentas</div><div class="value">${cleanValue(row.pentas)}</div></div>
-      `;
-
-      modal.classList.add('open');
-    }
-
-    function closeModal(event) {
-      if (event && event.target !== event.currentTarget) return;
-      document.getElementById('modal').classList.remove('open');
     }
 
     function renderCards(data, message = '') {
@@ -460,26 +310,30 @@
 
       cards.innerHTML = data.map((row, idx) => {
         const icon = getRankIcon(row.rango);
+        const rankClass = getRankClass(row.rango);
         return `
-          <article class="card" onclick="openModal(currentData[${idx}])">
+          <article class="card" onclick="openModal(currentData[${idx}])" data-index="${idx}">
+            <div class="profile-wrap">
+              <div class="level-badge">${cleanValue(row.nivel) || '0'}</div>
+              ${row.profileIconId ? `<img class="profile-icon" src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/profileicon/${cleanValue(row.profileIconId)}.png" alt="Perfil">` : `<div class="profile-icon"></div>`}
+            </div>
+
             <div class="card-head">
-              ${icon ? `<img class="rank-icon" src="${icon}" alt="${cleanValue(row.rango)}">` : ''}
               <div>
-                <div class="name">${cleanValue(row.jugador)}</div>
-                <div class="tag">${cleanValue(row.tag) ? '#' + cleanValue(row.tag) : ''}</div>
+                <div class="name center-text">${cleanValue(row.jugador)}</div>
+                <div class="tag center-text">${cleanValue(row.tag) ? '#' + cleanValue(row.tag) : ''}</div>
               </div>
             </div>
 
-            <div class="rank">
+            <div class="rank ${rankClass}">
               <span>${cleanValue(row.rango)}</span>
-              <span style="color:var(--muted);font-weight:600;">${row.nivel ? `Nv. ${cleanValue(row.nivel)}` : ''}</span>
             </div>
           </article>
         `;
       }).join('');
 
+      [...cards.querySelectorAll('.card')].forEach((card, idx) => setCardBackground(card, data[idx]));
       status.textContent = message;
-      if (data[0]) setBanner(data[0]);
     }
 
     function saveCards(data) {
