@@ -31,7 +31,8 @@ window.fetchData = async function() {
       kp: row[17] || '',
       dpm: row[18] || '',
       ultimoCampeon: row[19] || '',
-      pentas: row[20] || ''
+      pentas: row[20] || '',
+      champMaestriaNombre: row[7] || ''
     };
   }).filter(Boolean);
 };
