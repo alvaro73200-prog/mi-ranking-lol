@@ -79,7 +79,7 @@
 
     .layout{
       display:grid;
-      grid-template-columns:minmax(0, 1.4fr) minmax(320px, .9fr);
+      grid-template-columns:minmax(0, 1.35fr) minmax(340px, .95fr);
       gap:18px;
       align-items:start;
     }
@@ -107,18 +107,8 @@
       letter-spacing:.3px;
     }
 
-    .chart-wrap{
-      position:relative;
-      height:360px;
-      width:100%;
-    }
-
-    .chart-empty{
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.5;
-      padding:10px 0 0;
-    }
+    .chart-wrap{ position:relative; height:360px; width:100%; }
+    .chart-empty{ color:var(--muted); font-size:13px; line-height:1.5; padding:10px 0 0; }
 
     .card{
       position:relative;
@@ -147,10 +137,7 @@
       z-index:0;
     }
 
-    .card > *{
-      position:relative;
-      z-index:1;
-    }
+    .card > *{ position:relative; z-index:1; }
 
     .card:hover{
       transform: translateY(-6px);
@@ -188,7 +175,7 @@
       border:2px solid rgba(255,255,255,.18);
       object-fit:cover;
       object-position:center;
-      background:transparent;
+      background:#111820;
       box-shadow:0 10px 22px rgba(0,0,0,.35);
       display:block;
     }
@@ -197,7 +184,6 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:12px;
       flex-direction:column;
       text-align:center;
       margin-top:2px;
@@ -211,9 +197,7 @@
       word-break:break-word;
     }
 
-    .tag{
-      display:none;
-    }
+    .tag{ display:none; }
 
     .rank{
       font-size:15px;
@@ -228,25 +212,15 @@
       margin-top:auto;
     }
 
-    .center-text{
-      text-align:center;
-    }
+    .center-text{ text-align:center; }
 
     .emerald{ color:var(--emerald); }
     .gold{ color:var(--gold); }
     .diamond{ color:var(--diamond); }
     .master{ color:var(--master); }
 
-    .footer{
-      margin-top:18px;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .status{
-      margin-top:12px;
-      color:var(--muted);
-    }
+    .footer{ margin-top:18px; color:var(--muted); font-size:13px; }
+    .status{ margin-top:12px; color:var(--muted); }
 
     .empty{
       grid-column:1/-1;
@@ -270,13 +244,10 @@
       padding:24px;
     }
 
-    .modal.open{
-      display:flex;
-      animation: modalFade .18s ease-out;
-    }
+    .modal.open{ display:flex; animation: modalFade .18s ease-out; }
 
     .modal-card{
-      width:min(1040px, 100%);
+      width:min(1060px, 100%);
       border-radius:28px;
       overflow:hidden;
       border:1px solid rgba(255,255,255,.08);
@@ -306,9 +277,7 @@
       pointer-events:none;
     }
 
-    .modal-content{
-      padding:26px;
-    }
+    .modal-content{ padding:26px; }
 
     .modal-close{
       position:absolute;
@@ -434,19 +403,10 @@
       line-height:1.5;
     }
 
-    .tips strong{
-      color:#fff;
-    }
+    .tips strong{ color:#fff; }
 
-    .match-section{
-      margin-top:20px;
-    }
-
-    .match-section h3{
-      margin:0 0 12px;
-      font-size:16px;
-      color:#f4f7fb;
-    }
+    .match-section{ margin-top:20px; }
+    .match-section h3{ margin:0 0 12px; font-size:16px; color:#f4f7fb; }
 
     .match-table{
       width:100%;
@@ -469,6 +429,24 @@
       font-weight:800;
       text-transform:uppercase;
       letter-spacing:.04em;
+    }
+
+    .group-history{
+      margin-top:22px;
+      background:linear-gradient(180deg, rgba(17,24,32,.92), rgba(22,32,43,.96));
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+
+    .group-history h2{
+      margin:0 0 12px;
+      font-size:18px;
+    }
+
+    .group-history .chart-wrap{
+      height:280px;
     }
 
     @keyframes fadeUp{
@@ -522,12 +500,19 @@
       </div>
 
       <aside class="sidebar">
-        <h2>Historial</h2>
+        <h2>Historial individual</h2>
         <div class="chart-wrap">
           <canvas id="historyChart"></canvas>
         </div>
-        <div class="chart-empty">La gráfica quedará lista para mostrar historial de LP más adelante.</div>
+        <div class="chart-empty">La gráfica mostrará el Elo Real del jugador seleccionado.</div>
       </aside>
+    </div>
+
+    <div class="group-history">
+      <h2>Historial grupal</h2>
+      <div class="chart-wrap">
+        <canvas id="groupChart"></canvas>
+      </div>
     </div>
 
     <div id="status" class="status"></div>
@@ -554,17 +539,16 @@
         <div id="modalDetails" class="modal-details"></div>
         <div id="modalTips" class="tips"></div>
         <div class="match-section">
-          <h3>Últimas 10 partidas del grupo</h3>
+          <h3>Últimas 10 partidas del jugador</h3>
           <table class="match-table">
             <thead>
               <tr>
-                <th>Jugador</th>
                 <th>Campeón</th>
                 <th>Resultado</th>
                 <th>Fecha</th>
               </tr>
             </thead>
-            <tbody id="groupMatchRows"></tbody>
+            <tbody id="playerMatchRows"></tbody>
           </table>
         </div>
       </div>
@@ -576,6 +560,8 @@
     const STORAGE_KEY = 'lol-tracker-cards';
     let currentData = [];
     let historyChart = null;
+    let groupChart = null;
+    let selectedPlayer = null;
 
     function parseNum(v) {
       const n = parseFloat(String(v).replace(/[^\d.-]/g, ''));
@@ -597,9 +583,7 @@
       return 0;
     }
 
-    function getEloReal(row) {
-      return getRankBaseValue(row.rango) + parseNum(row.lp);
-    }
+    function getEloReal(row) { return getRankBaseValue(row.rango) + parseNum(row.lp); }
 
     function getRealWinrate(row) {
       const wins = parseNum(row.wins ?? row.victorias);
@@ -610,15 +594,13 @@
     }
 
     function buildExternalLinks(row) {
-      const name = encodeURIComponent(String(row.jugador || '').trim());
-      const tag = encodeURIComponent(String(row.tag || '').trim());
-      const riot = `${name}-${tag}`;
-      return {
-        opgg: `https://op.gg/lol/summoners/lan/${riot}`,
-        dpm: `https://dpm.lol/summoner/lan/${riot}`,
-        lg: `https://www.leagueofgraphs.com/es/summoner/lan/${riot}`,
-        ugg: `https://u.gg/lol/profile/lan/${riot}`
-      };
+      const name = String(row.jugador || '').trim();
+      const tag = String(row.tag || '').trim();
+      const opgg = `https://op.gg/lol/summoners/lan/${encodeURIComponent(name)}-${encodeURIComponent(tag)}`;
+      const dpm = `https://dpm.lol/${encodeURIComponent(name)}-${encodeURIComponent(tag)}`;
+      const ugg = `https://u.gg/lol/profile/la1/${encodeURIComponent(name.toLowerCase())}-${encodeURIComponent(tag.toLowerCase())}/overview`;
+      const lg = `https://www.leagueofgraphs.com/es/summoner/lan/${encodeURIComponent(name)}-${encodeURIComponent(tag)}`;
+      return { opgg, dpm, ugg, lg };
     }
 
     function getAllMatchesFromGroup(data) {
@@ -634,60 +616,98 @@
           });
         });
       });
+      return all.sort((a, b) => (new Date(b.fecha).getTime() || 0) - (new Date(a.fecha).getTime() || 0)).slice(0, 10);
+    }
 
-      return all.sort((a, b) => {
-        const ta = new Date(a.fecha).getTime() || 0;
-        const tb = new Date(b.fecha).getTime() || 0;
-        return tb - ta;
-      }).slice(0, 10);
+    function getPlayerMatches(row) {
+      const matches = row.partidas || row.matches || [];
+      return matches.slice().sort((a, b) => (new Date(b.timestamp || b.date || b.fecha).getTime() || 0) - (new Date(a.timestamp || a.date || a.fecha).getTime() || 0)).slice(0, 10);
+    }
+
+    function renderPlayerMatches(row) {
+      const tbody = document.getElementById('playerMatchRows');
+      const matches = getPlayerMatches(row);
+      tbody.innerHTML = matches.length ? matches.map(m => `
+        <tr>
+          <td>${cleanValue(m.champion || m.champ || m.campeon || '')}</td>
+          <td>${cleanValue(m.result || m.win || m.victory || '')}</td>
+          <td>${m.timestamp || m.date || m.fecha ? new Date(m.timestamp || m.date || m.fecha).toLocaleString() : ''}</td>
+        </tr>
+      `).join('') : `<tr><td colspan="3">Sin partidas del jugador.</td></tr>`;
     }
 
     function renderGroupMatches(data) {
-      const tbody = document.getElementById('groupMatchRows');
-      if (!tbody) return;
-
-      const matches = getAllMatchesFromGroup(data);
-
-      tbody.innerHTML = matches.length ? matches.map(m => `
-        <tr>
-          <td>${cleanValue(m.jugador)}</td>
-          <td>${cleanValue(m.campeon)}</td>
-          <td>${cleanValue(m.resultado)}</td>
-          <td>${m.fecha ? new Date(m.fecha).toLocaleString() : ''}</td>
-        </tr>
-      `).join('') : `<tr><td colspan="4">Sin partidas cargadas.</td></tr>`;
+      const rows = getAllMatchesFromGroup(data);
+      const target = document.getElementById('groupChart');
+      if (!target) return;
+      const labels = rows.map(x => x.jugador);
+      const values = rows.map(x => getEloReal(currentData.find(p => p.jugador === x.jugador) || {}));
+      if (groupChart) groupChart.destroy();
+      groupChart = new Chart(target, {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Elo Real', data: values, backgroundColor: '#d13639', borderRadius: 10 }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => `Elo Real: ${ctx.raw}`
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#8a97a6' }, grid: { color: 'rgba(255,255,255,.06)' } },
+            y: { ticks: { color: '#e7edf4' }, grid: { display: false } }
+          }
+        }
+      });
     }
 
-    function getRankIcon(rango) {
-      const r = String(rango || '').toLowerCase();
-      if (r.includes('iron')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-iron.png';
-      if (r.includes('bronze')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-bronze.png';
-      if (r.includes('silver')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-silver.png';
-      if (r.includes('gold')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-gold.png';
-      if (r.includes('platinum')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-platinum.png';
-      if (r.includes('emerald')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-emerald.png';
-      if (r.includes('diamond')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-diamond.png';
-      if (r.includes('master')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-master.png';
-      if (r.includes('grandmaster')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-grandmaster.png';
-      if (r.includes('challenger')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-challenger.png';
-      return '';
+    function renderChart(data) {
+      const ctx = document.getElementById('historyChart');
+      if (!ctx) return;
+      if (historyChart) historyChart.destroy();
+      const selected = selectedPlayer || data[0];
+      if (!selected) return;
+      const matches = getPlayerMatches(selected);
+      const labels = matches.map((_, i) => `Partida ${i + 1}`).reverse();
+      const values = matches.map(m => getEloReal(selected)).reverse();
+      historyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Elo Real',
+            data: values,
+            borderColor: '#d13639',
+            backgroundColor: 'rgba(209,54,57,.18)',
+            tension: .35,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: ctx => `Elo Real: ${ctx.raw}`
+              }
+            },
+            legend: { labels: { color: '#e7edf4' } }
+          },
+          scales: {
+            x: { ticks: { color: '#8a97a6' }, grid: { color: 'rgba(255,255,255,.06)' } },
+            y: { ticks: { color: '#8a97a6' }, grid: { color: 'rgba(255,255,255,.06)' } }
+          }
+        }
+      });
     }
 
-    function getChampionSplash(name) {
-      const champ = String(name || '').trim();
-      if (!champ) return '';
-      return `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ}_0.jpg`;
-    }
-
-    function getChampionSquare(name) {
-      const champ = String(name || '').trim();
-      if (!champ) return '';
-      return `https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/${champ}.png`;
-    }
-
-    function cleanValue(v) {
-      return (v === null || v === undefined) ? '' : String(v);
-    }
+    function cleanValue(v) { return (v === null || v === undefined) ? '' : String(v); }
 
     function getRankClass(rango) {
       const r = String(rango || '').toUpperCase();
@@ -700,12 +720,12 @@
 
     function setCardBackground(card, row) {
       const champ = row?.champMaestriaNombre || row?.ultimoCampeon || '';
-      const splash = getChampionSplash(champ);
+      const splash = champ ? `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ}_0.jpg` : '';
       if (splash) card.style.backgroundImage = `linear-gradient(180deg, rgba(17,24,32,.78) 0%, rgba(22,32,43,.92) 100%), url('${splash}')`;
     }
 
     function getTipsByRow(row) {
-      const winRate = parseFloat(String(row.winRate || '').replace('%','')) || 0;
+      const winRate = parseFloat(String(getRealWinrate(row)).replace('%','')) || 0;
       const lp = parseNum(row.lp);
       const rank = String(row.rango || '').toUpperCase();
       if (rank.includes('MASTER') || rank.includes('DIAMOND')) return 'Consejo: tu fuerte está en la consistencia. Si mantienes winrate y pool de campeones, puedes dominar el draft.';
@@ -715,6 +735,7 @@
     }
 
     function openModal(row) {
+      selectedPlayer = row;
       const modal = document.getElementById('modal');
       const title = document.getElementById('modalTitle');
       const subtitle = document.getElementById('modalSubtitle');
@@ -722,11 +743,10 @@
       const banner = document.getElementById('modalBanner');
       const champCard = document.getElementById('modalChampCard');
       const modalTips = document.getElementById('modalTips');
-
-      const champ = row.champMaestriaNombre || row.ultimoCampeon || '';
-      const splash = getChampionSplash(champ);
-      const champIcon = getChampionSquare(champ);
       const links = buildExternalLinks(row);
+      const champ = row.champMaestriaNombre || row.ultimoCampeon || '';
+      const splash = champ ? `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ}_0.jpg` : '';
+      const champIcon = champ ? `https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/${champ}.png` : '';
 
       title.textContent = row.jugador || '';
       subtitle.textContent = row.rango || '';
@@ -735,19 +755,8 @@
         ? `linear-gradient(90deg, rgba(11,15,20,.88) 0%, rgba(11,15,20,.52) 45%, rgba(11,15,20,.12) 100%), url('${splash}') center/cover no-repeat`
         : `linear-gradient(90deg, rgba(11,15,20,.88) 0%, rgba(11,15,20,.52) 45%, rgba(11,15,20,.12) 100%)`;
 
-      if (champ) {
-        champCard.style.display = 'flex';
-        champCard.innerHTML = `
-          ${champIcon ? `<img src="${champIcon}" alt="${champ}">` : ''}
-          <div>
-            <div class="champ-name">${cleanValue(champ)}</div>
-            <div class="champ-sub">Campeón con más maestría</div>
-          </div>
-        `;
-      } else {
-        champCard.style.display = 'none';
-        champCard.innerHTML = '';
-      }
+      champCard.style.display = champ ? 'flex' : 'none';
+      champCard.innerHTML = champ ? `${champIcon ? `<img src="${champIcon}" alt="${champ}">` : ''}<div><div class="champ-name">${cleanValue(champ)}</div><div class="champ-sub">Campeón con más maestría</div></div>` : '';
 
       details.innerHTML = `
         <div class="modal-item"><div class="label">Rango</div><div class="value ${getRankClass(row.rango)}">${cleanValue(row.rango)}</div></div>
@@ -771,7 +780,8 @@
       document.getElementById('linkUgg').href = links.ugg;
 
       modalTips.textContent = getTipsByRow(row);
-      renderGroupMatches(currentData);
+      renderPlayerMatches(row);
+      renderChart(currentData);
       modal.classList.add('open');
     }
 
@@ -780,52 +790,8 @@
       document.getElementById('modal').classList.remove('open');
     }
 
-    function renderChart(data) {
-      const ctx = document.getElementById('historyChart');
-      if (!ctx) return;
-
-      const labels = data.map(x => x.jugador);
-      const values = data.map(x => getEloReal(x));
-
-      if (historyChart) historyChart.destroy();
-
-      historyChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Elo Real',
-            data: values,
-            borderWidth: 0,
-            backgroundColor: '#d13639',
-            hoverBackgroundColor: '#f25c5f',
-            borderRadius: 10
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          indexAxis: 'y',
-          plugins: {
-            legend: { display: false },
-            title: {
-              display: true,
-              text: 'Elo Real por jugador',
-              color: '#e7edf4'
-            }
-          },
-          scales: {
-            x: {
-              ticks: { color: '#8a97a6' },
-              grid: { color: 'rgba(255,255,255,.06)' }
-            },
-            y: {
-              ticks: { color: '#e7edf4' },
-              grid: { display: false }
-            }
-          }
-        }
-      });
+    function getLinkOpgg(row){
+      return `https://op.gg/lol/summoners/lan/${encodeURIComponent(row.jugador || '')}-${encodeURIComponent(row.tag || '')}`;
     }
 
     function renderCards(data, message = '') {
@@ -836,32 +802,27 @@
         cards.innerHTML = '<div class="empty">No se encontraron datos.</div>';
         status.textContent = message;
         renderChart([]);
+        renderGroupMatches([]);
         return;
       }
 
       cards.innerHTML = data.map((row, idx) => {
         const rankClass = getRankClass(row.rango);
-        const opgg = `https://op.gg/lol/summoners/lan/${encodeURIComponent(row.jugador || '')}-${encodeURIComponent(row.tag || '')}`;
+        const opgg = getLinkOpgg(row);
         return `
           <article class="card" onclick="openModal(currentData[${idx}])">
             <div class="profile-wrap">
               <div class="level-badge">${cleanValue(row.nivel) || '0'}</div>
               <img class="profile-icon" src="https://ddragon.leagueoflegends.com/cdn/14.8.1/img/profileicon/${cleanValue(row.profileIconId)}.png" alt="Perfil">
             </div>
-
             <div class="card-head">
-              <div>
-                <div class="name ${rankClass} center-text">
-                  <a href="${opgg}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">
-                    ${cleanValue(row.jugador)}
-                  </a>
-                </div>
+              <div class="name ${rankClass} center-text">
+                <a href="${opgg}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">
+                  ${cleanValue(row.jugador)}
+                </a>
               </div>
             </div>
-
-            <div class="rank ${rankClass}">
-              <span>${cleanValue(row.rango)}</span>
-            </div>
+            <div class="rank ${rankClass}"><span>${cleanValue(row.rango)}</span></div>
           </article>
         `;
       }).join('');
@@ -869,16 +830,11 @@
       [...cards.querySelectorAll('.card')].forEach((card, idx) => setCardBackground(card, data[idx]));
       status.textContent = message;
       renderChart(data);
+      renderGroupMatches(data);
     }
 
-    function saveCards(data) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
-
-    function loadSavedCards() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
-    }
+    function saveCards(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    function loadSavedCards() { const saved = localStorage.getItem(STORAGE_KEY); return saved ? JSON.parse(saved) : []; }
 
     async function loadData() {
       const status = document.getElementById('status');
@@ -891,22 +847,16 @@
       } catch (err) {
         const saved = loadSavedCards();
         currentData = saved;
-        if (saved.length) {
-          renderCards(saved, 'Mostrando datos guardados.');
-        } else {
-          renderCards([], `Error: ${err.message}`);
-        }
+        if (saved.length) renderCards(saved, 'Mostrando datos guardados.');
+        else renderCards([], `Error: ${err.message}`);
       }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
       const saved = loadSavedCards();
       currentData = saved;
-      if (saved.length) {
-        renderCards(saved, 'Mostrando datos guardados.');
-      } else {
-        renderChart([]);
-      }
+      if (saved.length) renderCards(saved, 'Mostrando datos guardados.');
+      else { renderChart([]); renderGroupMatches([]); }
     });
   </script>
 </body>
