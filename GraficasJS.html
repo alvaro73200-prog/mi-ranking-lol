@@ -1,0 +1,95 @@
+<script>
+  function parseNum(v) {
+    const n = parseFloat(String(v).replace(/[^\d.-]/g, ''));
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function cleanValue(v) {
+    return (v === null || v === undefined) ? '' : String(v);
+  }
+
+  function getRankBaseValue(rango) {
+    const r = String(rango || '').toUpperCase();
+    if (r.includes('IRON')) return 0;
+    if (r.includes('BRONZE')) return 500;
+    if (r.includes('SILVER')) return 800;
+    if (r.includes('GOLD')) return 1200;
+    if (r.includes('PLATINUM')) return 1600;
+    if (r.includes('EMERALD')) return 2000;
+    if (r.includes('DIAMOND')) return 2400;
+    if (r.includes('MASTER')) return 2800;
+    if (r.includes('GRANDMASTER')) return 3200;
+    if (r.includes('CHALLENGER')) return 3600;
+    return 0;
+  }
+
+  function getEloReal(row) {
+    return getRankBaseValue(row.rango) + parseNum(row.lp);
+  }
+
+  function getRealWinrate(row) {
+    const wins = parseNum(row.wins);
+    const losses = parseNum(row.losses);
+    const total = wins + losses;
+    if (!total) return '0.0%';
+    return ((wins / total) * 100).toFixed(1) + '%';
+  }
+
+  function renderChart(data) {
+    const ctx = document.getElementById('historyChart');
+    if (!ctx) return;
+
+    if (window.historyChart) {
+      window.historyChart.destroy();
+    }
+
+    const labels = data.map(x => x.jugador);
+    const values = data.map(x => getEloReal(x));
+
+    window.historyChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Elo Real',
+          data: values,
+          borderWidth: 0,
+          backgroundColor: '#d13639',
+          hoverBackgroundColor: '#f25c5f',
+          borderRadius: 10
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const row = window.currentData[context.dataIndex];
+                return `${String(row.rango || '')} - Elo Real: ${getEloReal(row)}`;
+              }
+            }
+          },
+          title: {
+            display: true,
+            text: 'Elo Real por jugador',
+            color: '#e7edf4'
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#8a97a6' },
+            grid: { color: 'rgba(255,255,255,.06)' }
+          },
+          y: {
+            ticks: { color: '#e7edf4' },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+</script>
