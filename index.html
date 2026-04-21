@@ -238,6 +238,7 @@
 
     .modal.open{
       display:flex;
+      animation: modalFade .18s ease-out;
     }
 
     .modal-card{
@@ -249,6 +250,8 @@
       box-shadow:0 32px 90px rgba(0,0,0,.6);
       color:var(--text);
       position:relative;
+      transform-origin:center;
+      animation: modalPop .22s ease-out;
     }
 
     .modal-banner{
@@ -257,13 +260,22 @@
       display:flex;
       align-items:flex-end;
       background:
-        linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.68) 45%, rgba(11,15,20,.2) 100%),
+        linear-gradient(90deg, rgba(11,15,20,.88) 0%, rgba(11,15,20,.52) 45%, rgba(11,15,20,.12) 100%),
         center/cover no-repeat;
       border-bottom:1px solid rgba(255,255,255,.06);
+      position:relative;
+    }
+
+    .modal-banner::after{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:radial-gradient(circle at 70% 20%, rgba(255,255,255,.08), transparent 32%);
+      pointer-events:none;
     }
 
     .modal-content{
-      padding:24px;
+      padding:26px;
     }
 
     .modal-close{
@@ -322,10 +334,11 @@
       gap:14px;
       padding:14px 16px;
       border-radius:18px;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.10);
       width:fit-content;
-      box-shadow:0 10px 22px rgba(0,0,0,.18);
+      box-shadow:0 14px 28px rgba(0,0,0,.22);
+      backdrop-filter: blur(10px);
     }
 
     .champ-card img{
@@ -350,6 +363,20 @@
       margin-top:4px;
     }
 
+    .tips{
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      color:#dbe7f5;
+      line-height:1.5;
+    }
+
+    .tips strong{
+      color:#fff;
+    }
+
     @keyframes fadeUp{
       from{
         opacity:0;
@@ -361,15 +388,28 @@
       }
     }
 
+    @keyframes modalFade{
+      from{ opacity:0; }
+      to{ opacity:1; }
+    }
+
+    @keyframes modalPop{
+      from{ opacity:0; transform: translateY(16px) scale(.98); }
+      to{ opacity:1; transform: translateY(0) scale(1); }
+    }
+
     @media (max-width: 640px){
-      body{ padding:16px; }
-      .cards{ grid-template-columns:1fr; }
-      .card{ padding:16px; min-height:260px; }
-      .title{ font-size:38px; }
-      .profile-icon{ width:68px; height:68px; }
-      .modal{ padding:14px; }
-      .modal-banner{ min-height:200px; }
+      body{ padding:14px; }
+      .cards{ grid-template-columns:1fr; gap:14px; }
+      .card{ padding:16px; min-height:250px; }
+      .title{ font-size:36px; }
+      .profile-icon{ width:66px; height:66px; }
+      .modal{ padding:12px; }
+      .modal-banner{ min-height:190px; padding:18px; }
+      .modal-content{ padding:18px; }
+      .modal-details{ grid-template-columns:1fr; }
       .champ-card{ width:100%; }
+      .tips{ font-size:14px; }
     }
   </style>
 </head>
@@ -401,6 +441,9 @@
       </div>
       <div class="modal-content">
         <div id="modalDetails" class="modal-details"></div>
+        <div class="tips">
+          <strong>Consejos rápidos:</strong> Revisa el rango, el winrate y el campeón de maestría antes de decidir la composición. Si el campeón destacado tiene buen control de línea o presión, suele ser una pista útil para el draft.
+        </div>
       </div>
     </div>
   </div>
@@ -474,8 +517,8 @@
       subtitle.textContent = row.tag ? `#${row.tag}` : '';
 
       banner.style.background = splash
-        ? `linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.68) 45%, rgba(11,15,20,.2) 100%), url('${splash}') center/cover no-repeat`
-        : `linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.68) 45%, rgba(11,15,20,.2) 100%)`;
+        ? `linear-gradient(90deg, rgba(11,15,20,.88) 0%, rgba(11,15,20,.52) 45%, rgba(11,15,20,.12) 100%), url('${splash}') center/cover no-repeat`
+        : `linear-gradient(90deg, rgba(11,15,20,.88) 0%, rgba(11,15,20,.52) 45%, rgba(11,15,20,.12) 100%)`;
 
       if (champ) {
         champCard.style.display = 'flex';
@@ -525,7 +568,6 @@
       }
 
       cards.innerHTML = data.map((row, idx) => {
-        const icon = getRankIcon(row.rango);
         const rankClass = getRankClass(row.rango);
         return `
           <article class="card" onclick="openModal(currentData[${idx}])">
