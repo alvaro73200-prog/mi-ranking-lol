@@ -7,53 +7,78 @@
   <style>
     body{font-family:Arial,sans-serif;background:#111;color:#eee;padding:24px}
     button{padding:10px 14px;border:0;border-radius:8px;background:#d33;color:#fff;cursor:pointer}
-    pre{margin-top:16px;background:#1b1b1b;padding:16px;border-radius:10px;white-space:pre-wrap}
+    table{width:100%;margin-top:16px;border-collapse:collapse;background:#1b1b1b;border-radius:10px;overflow:hidden}
+    th,td{padding:12px;border-bottom:1px solid #333;text-align:left}
   </style>
 </head>
 <body>
   <h1>LOL Tracker LAN</h1>
   <button onclick="loadData()">Cargar datos</button>
- <table style="width:100%;margin-top:16px;border-collapse:collapse;background:#1b1b1b;border-radius:10px;overflow:hidden">
-  <thead>
-    <tr>
-      <th style="text-align:left;padding:12px;border-bottom:1px solid #333;">Jugador</th>
-      <th style="text-align:left;padding:12px;border-bottom:1px solid #333;">Rango</th>
-      <th style="text-align:left;padding:12px;border-bottom:1px solid #333;">LP</th>
-      <th style="text-align:left;padding:12px;border-bottom:1px solid #333;">WR</th>
-      <th style="text-align:left;padding:12px;border-bottom:1px solid #333;">V/D</th>
-    </tr>
-  </thead>
-  <tbody id="tableBody">
-    <tr>
-      <td colspan="5" style="padding:12px;">Presiona el botón...</td>
-    </tr>
-  </tbody>
-</table>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Jugador</th>
+        <th>Rango</th>
+        <th>LP</th>
+        <th>WR</th>
+        <th>V/D</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <tr>
+        <td colspan="5">Presiona el botón...</td>
+      </tr>
+    </tbody>
+  </table>
 
   <script src="./data.js"></script>
   <script>
-    async function loadData() {
-  const tbody = document.getElementById('tableBody');
-  try {
-    const data = await window.fetchData();
-    if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="5" style="padding:12px;">No se encontraron datos.</td></tr>';
-      return;
+    function getRankIcon(rango) {
+      const r = String(rango || '').toLowerCase();
+      if (r.includes('iron')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-iron.png';
+      if (r.includes('bronze')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-bronze.png';
+      if (r.includes('silver')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-silver.png';
+      if (r.includes('gold')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-gold.png';
+      if (r.includes('platinum')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-platinum.png';
+      if (r.includes('emerald')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-emerald.png';
+      if (r.includes('diamond')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-diamond.png';
+      if (r.includes('master')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-master.png';
+      if (r.includes('grandmaster')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-grandmaster.png';
+      if (r.includes('challenger')) return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/emblem-challenger.png';
+      return '';
     }
 
-    tbody.innerHTML = data.map(row => `
-      <tr>
-        <td style="padding:12px;border-bottom:1px solid #333;">${row.jugador}${row.tag ? '#' + row.tag : ''}</td>
-        <td style="padding:12px;border-bottom:1px solid #333;">${row.rango}</td>
-        <td style="padding:12px;border-bottom:1px solid #333;">${row.lp} LP</td>
-        <td style="padding:12px;border-bottom:1px solid #333;">${row.wr}</td>
-        <td style="padding:12px;border-bottom:1px solid #333;">${row.vd}</td>
-      </tr>
-    `).join('');
-  } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="5" style="padding:12px;">Error: ${err.message}</td></tr>`;
-  }
-}
+    async function loadData() {
+      const tbody = document.getElementById('tableBody');
+      try {
+        const data = await window.fetchData();
+        if (!data.length) {
+          tbody.innerHTML = '<tr><td colspan="5">No se encontraron datos.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.map(row => {
+          const icon = getRankIcon(row.rango);
+          return `
+            <tr>
+              <td>${row.jugador}${row.tag ? '#' + row.tag : ''}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  ${icon ? `<img src="${icon}" alt="${row.rango}" style="width:30px;height:30px;object-fit:contain;">` : ''}
+                  <span>${row.rango}</span>
+                </div>
+              </td>
+              <td>${row.lp} LP</td>
+              <td>${row.wr}</td>
+              <td>${row.vd}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5">Error: ${err.message}</td></tr>`;
+      }
+    }
   </script>
 </body>
 </html>
