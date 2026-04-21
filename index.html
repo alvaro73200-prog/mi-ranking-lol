@@ -107,8 +107,18 @@
       letter-spacing:.3px;
     }
 
-    .chart-wrap{ position:relative; height:360px; width:100%; }
-    .chart-empty{ color:var(--muted); font-size:13px; line-height:1.5; padding:10px 0 0; }
+    .chart-wrap{
+      position:relative;
+      height:360px;
+      width:100%;
+    }
+
+    .chart-empty{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.5;
+      padding:10px 0 0;
+    }
 
     .card{
       position:relative;
@@ -137,7 +147,10 @@
       z-index:0;
     }
 
-    .card > *{ position:relative; z-index:1; }
+    .card > *{
+      position:relative;
+      z-index:1;
+    }
 
     .card:hover{
       transform: translateY(-6px);
@@ -197,7 +210,9 @@
       word-break:break-word;
     }
 
-    .tag{ display:none; }
+    .tag{
+      display:none;
+    }
 
     .rank{
       font-size:15px;
@@ -212,15 +227,25 @@
       margin-top:auto;
     }
 
-    .center-text{ text-align:center; }
+    .center-text{
+      text-align:center;
+    }
 
     .emerald{ color:var(--emerald); }
     .gold{ color:var(--gold); }
     .diamond{ color:var(--diamond); }
     .master{ color:var(--master); }
 
-    .footer{ margin-top:18px; color:var(--muted); font-size:13px; }
-    .status{ margin-top:12px; color:var(--muted); }
+    .footer{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .status{
+      margin-top:12px;
+      color:var(--muted);
+    }
 
     .empty{
       grid-column:1/-1;
@@ -230,6 +255,43 @@
       color:var(--muted);
       background:rgba(255,255,255,.02);
       text-align:center;
+    }
+
+    .bottom-list{
+      margin-top:22px;
+      background:linear-gradient(180deg, rgba(17,24,32,.92), rgba(22,32,43,.96));
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+
+    .bottom-list h2{
+      margin:0 0 12px;
+      font-size:18px;
+    }
+
+    .record-list{
+      display:grid;
+      gap:10px;
+    }
+
+    .record-item{
+      display:grid;
+      grid-template-columns:1.4fr .8fr .8fr .8fr;
+      gap:10px;
+      align-items:center;
+      padding:12px 14px;
+      border-radius:14px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      font-size:14px;
+    }
+
+    .record-item span{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
     }
 
     .modal{
@@ -244,10 +306,13 @@
       padding:24px;
     }
 
-    .modal.open{ display:flex; animation: modalFade .18s ease-out; }
+    .modal.open{
+      display:flex;
+      animation: modalFade .18s ease-out;
+    }
 
     .modal-card{
-      width:min(1060px, 100%);
+      width:min(1040px, 100%);
       border-radius:28px;
       overflow:hidden;
       border:1px solid rgba(255,255,255,.08);
@@ -277,7 +342,9 @@
       pointer-events:none;
     }
 
-    .modal-content{ padding:26px; }
+    .modal-content{
+      padding:26px;
+    }
 
     .modal-close{
       position:absolute;
@@ -403,50 +470,8 @@
       line-height:1.5;
     }
 
-    .tips strong{ color:#fff; }
-
-    .match-section{ margin-top:20px; }
-    .match-section h3{ margin:0 0 12px; font-size:16px; color:#f4f7fb; }
-
-    .match-table{
-      width:100%;
-      border-collapse:collapse;
-      overflow:hidden;
-      border-radius:16px;
-      background:rgba(255,255,255,.03);
-    }
-
-    .match-table th,
-    .match-table td{
-      padding:10px 12px;
-      border-bottom:1px solid rgba(255,255,255,.06);
-      text-align:left;
-      font-size:13px;
-    }
-
-    .match-table th{
-      color:var(--muted);
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:.04em;
-    }
-
-    .group-history{
-      margin-top:22px;
-      background:linear-gradient(180deg, rgba(17,24,32,.92), rgba(22,32,43,.96));
-      border:1px solid var(--line);
-      border-radius:22px;
-      box-shadow:var(--shadow);
-      padding:16px;
-    }
-
-    .group-history h2{
-      margin:0 0 12px;
-      font-size:18px;
-    }
-
-    .group-history .chart-wrap{
-      height:280px;
+    .tips strong{
+      color:#fff;
     }
 
     @keyframes fadeUp{
@@ -465,8 +490,16 @@
     }
 
     @media (max-width: 980px){
-      .layout{ grid-template-columns:1fr; }
-      .sidebar{ position:relative; top:auto; }
+      .layout{
+        grid-template-columns:1fr;
+      }
+      .sidebar{
+        position:relative;
+        top:auto;
+      }
+      .record-item{
+        grid-template-columns:1fr 1fr;
+      }
     }
 
     @media (max-width: 640px){
@@ -481,6 +514,9 @@
       .modal-details{ grid-template-columns:1fr; }
       .champ-card{ width:100%; }
       .tips{ font-size:14px; }
+      .record-item{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
@@ -500,19 +536,17 @@
       </div>
 
       <aside class="sidebar">
-        <h2>Historial individual</h2>
+        <h2>Gráfica de Elo Real</h2>
         <div class="chart-wrap">
           <canvas id="historyChart"></canvas>
         </div>
-        <div class="chart-empty">La gráfica mostrará el Elo Real del jugador seleccionado.</div>
+        <div class="chart-empty">Al pasar el cursor verás el rango y el Elo Real.</div>
       </aside>
     </div>
 
-    <div class="group-history">
-      <h2>Historial grupal</h2>
-      <div class="chart-wrap">
-        <canvas id="groupChart"></canvas>
-      </div>
+    <div class="bottom-list">
+      <h2>Resumen de victorias y derrotas</h2>
+      <div id="recordList" class="record-list"></div>
     </div>
 
     <div id="status" class="status"></div>
@@ -538,19 +572,6 @@
       <div class="modal-content">
         <div id="modalDetails" class="modal-details"></div>
         <div id="modalTips" class="tips"></div>
-        <div class="match-section">
-          <h3>Últimas 10 partidas del jugador</h3>
-          <table class="match-table">
-            <thead>
-              <tr>
-                <th>Campeón</th>
-                <th>Resultado</th>
-                <th>Fecha</th>
-              </tr>
-            </thead>
-            <tbody id="playerMatchRows"></tbody>
-          </table>
-        </div>
       </div>
     </div>
   </div>
@@ -560,18 +581,20 @@
     const STORAGE_KEY = 'lol-tracker-cards';
     let currentData = [];
     let historyChart = null;
-    let groupChart = null;
-    let selectedPlayer = null;
 
     function parseNum(v) {
       const n = parseFloat(String(v).replace(/[^\d.-]/g, ''));
       return Number.isFinite(n) ? n : 0;
     }
 
+    function cleanValue(v) {
+      return (v === null || v === undefined) ? '' : String(v);
+    }
+
     function getRankBaseValue(rango) {
       const r = String(rango || '').toUpperCase();
       if (r.includes('IRON')) return 0;
-      if (r.includes('BRONZE')) return 400;
+      if (r.includes('BRONZE')) return 500;
       if (r.includes('SILVER')) return 800;
       if (r.includes('GOLD')) return 1200;
       if (r.includes('PLATINUM')) return 1600;
@@ -583,14 +606,55 @@
       return 0;
     }
 
-    function getEloReal(row) { return getRankBaseValue(row.rango) + parseNum(row.lp); }
+    function getEloReal(row) {
+      return getRankBaseValue(row.rango) + parseNum(row.lp);
+    }
 
     function getRealWinrate(row) {
-      const wins = parseNum(row.wins ?? row.victorias);
-      const losses = parseNum(row.losses ?? row.derrotas);
+      const wins = parseNum(row.wins);
+      const losses = parseNum(row.losses);
       const total = wins + losses;
       if (!total) return '0.0%';
       return ((wins / total) * 100).toFixed(1) + '%';
+    }
+
+    function getRankClass(rango) {
+      const r = String(rango || '').toUpperCase();
+      if (r.includes('EMERALD')) return 'emerald';
+      if (r.includes('GOLD')) return 'gold';
+      if (r.includes('DIAMOND')) return 'diamond';
+      if (r.includes('MASTER')) return 'master';
+      return '';
+    }
+
+    function getChampionSplash(name) {
+      const champ = String(name || '').trim();
+      if (!champ || champ === 'N/A') return '';
+      return `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ}_0.jpg`;
+    }
+
+    function getChampionSquare(name) {
+      const champ = String(name || '').trim();
+      if (!champ || champ === 'N/A') return '';
+      return `https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/${champ}.png`;
+    }
+
+    function setCardBackground(card, row) {
+      const champ = row?.champMaestriaNombre || row?.ultimoChamp || '';
+      const splash = getChampionSplash(champ);
+      if (splash) {
+        card.style.backgroundImage = `linear-gradient(180deg, rgba(17,24,32,.78) 0%, rgba(22,32,43,.92) 100%), url('${splash}')`;
+      }
+    }
+
+    function getTipsByRow(row) {
+      const winRate = parseFloat(getRealWinrate(row).replace('%','')) || 0;
+      const lp = parseNum(row.lp);
+      const rank = String(row.rango || '').toUpperCase();
+      if (rank.includes('MASTER') || rank.includes('DIAMOND')) return 'Consejo: tu fuerte está en la consistencia. Si mantienes winrate y pool de campeones, puedes dominar el draft.';
+      if (winRate >= 60) return 'Consejo: estás con buen ritmo. Prioriza campeones en los que ya tengas impacto temprano y no fuerces picks raros.';
+      if (lp >= 100) return 'Consejo: el LP indica que estás cerca de una transición de división. Juega seguro y evita trades innecesarios.';
+      return 'Consejo: revisa tendencia de victorias, campeón más jugado y el rango. Con eso puedes afinar decisiones para el equipo.';
     }
 
     function buildExternalLinks(row) {
@@ -603,49 +667,45 @@
       return { opgg, dpm, ugg, lg };
     }
 
-    function getAllMatchesFromGroup(data) {
-      const all = [];
-      data.forEach(player => {
-        const matches = player.partidas || player.matches || [];
-        matches.forEach(m => {
-          all.push({
-            jugador: player.jugador || '',
-            campeon: m.champion || m.champ || m.campeon || '',
-            resultado: m.result || m.win || m.victory || '',
-            fecha: m.timestamp || m.date || m.fecha || ''
-          });
-        });
-      });
-      return all.sort((a, b) => (new Date(b.fecha).getTime() || 0) - (new Date(a.fecha).getTime() || 0)).slice(0, 10);
-    }
-
     function getPlayerMatches(row) {
       const matches = row.partidas || row.matches || [];
       return matches.slice().sort((a, b) => (new Date(b.timestamp || b.date || b.fecha).getTime() || 0) - (new Date(a.timestamp || a.date || a.fecha).getTime() || 0)).slice(0, 10);
     }
 
-    function renderPlayerMatches(row) {
-      const tbody = document.getElementById('playerMatchRows');
-      const matches = getPlayerMatches(row);
-      tbody.innerHTML = matches.length ? matches.map(m => `
-        <tr>
-          <td>${cleanValue(m.champion || m.champ || m.campeon || '')}</td>
-          <td>${cleanValue(m.result || m.win || m.victory || '')}</td>
-          <td>${m.timestamp || m.date || m.fecha ? new Date(m.timestamp || m.date || m.fecha).toLocaleString() : ''}</td>
-        </tr>
-      `).join('') : `<tr><td colspan="3">Sin partidas del jugador.</td></tr>`;
+    function renderRecordList(data) {
+      const box = document.getElementById('recordList');
+      box.innerHTML = data.map(row => `
+        <div class="record-item">
+          <span>${cleanValue(row.jugador)}</span>
+          <span>V: ${cleanValue(row.wins)}</span>
+          <span>D: ${cleanValue(row.losses)}</span>
+          <span>WR: ${getRealWinrate(row)}</span>
+        </div>
+      `).join('');
     }
 
-    function renderGroupMatches(data) {
-      const rows = getAllMatchesFromGroup(data);
-      const target = document.getElementById('groupChart');
-      if (!target) return;
-      const labels = rows.map(x => x.jugador);
-      const values = rows.map(x => getEloReal(currentData.find(p => p.jugador === x.jugador) || {}));
-      if (groupChart) groupChart.destroy();
-      groupChart = new Chart(target, {
+    function renderChart(data) {
+      const ctx = document.getElementById('historyChart');
+      if (!ctx) return;
+
+      if (historyChart) historyChart.destroy();
+
+      const labels = data.map(x => x.jugador);
+      const values = data.map(x => getEloReal(x));
+
+      historyChart = new Chart(ctx, {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'Elo Real', data: values, backgroundColor: '#d13639', borderRadius: 10 }] },
+        data: {
+          labels,
+          datasets: [{
+            label: 'Elo Real',
+            data: values,
+            borderWidth: 0,
+            backgroundColor: '#d13639',
+            hoverBackgroundColor: '#f25c5f',
+            borderRadius: 10
+          }]
+        },
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -654,88 +714,34 @@
             legend: { display: false },
             tooltip: {
               callbacks: {
-                label: ctx => `Elo Real: ${ctx.raw}`
+                label: function(context) {
+                  const row = currentData[context.dataIndex];
+                  const elo = getEloReal(row);
+                  return `${String(row.rango || '')} - Elo Real: ${elo}`;
+                }
               }
+            },
+            title: {
+              display: true,
+              text: 'Elo Real por jugador',
+              color: '#e7edf4'
             }
           },
           scales: {
-            x: { ticks: { color: '#8a97a6' }, grid: { color: 'rgba(255,255,255,.06)' } },
-            y: { ticks: { color: '#e7edf4' }, grid: { display: false } }
-          }
-        }
-      });
-    }
-
-    function renderChart(data) {
-      const ctx = document.getElementById('historyChart');
-      if (!ctx) return;
-      if (historyChart) historyChart.destroy();
-      const selected = selectedPlayer || data[0];
-      if (!selected) return;
-      const matches = getPlayerMatches(selected);
-      const labels = matches.map((_, i) => `Partida ${i + 1}`).reverse();
-      const values = matches.map(m => getEloReal(selected)).reverse();
-      historyChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Elo Real',
-            data: values,
-            borderColor: '#d13639',
-            backgroundColor: 'rgba(209,54,57,.18)',
-            tension: .35,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: ctx => `Elo Real: ${ctx.raw}`
-              }
+            x: {
+              ticks: { color: '#8a97a6' },
+              grid: { color: 'rgba(255,255,255,.06)' }
             },
-            legend: { labels: { color: '#e7edf4' } }
-          },
-          scales: {
-            x: { ticks: { color: '#8a97a6' }, grid: { color: 'rgba(255,255,255,.06)' } },
-            y: { ticks: { color: '#8a97a6' }, grid: { color: 'rgba(255,255,255,.06)' } }
+            y: {
+              ticks: { color: '#e7edf4' },
+              grid: { display: false }
+            }
           }
         }
       });
-    }
-
-    function cleanValue(v) { return (v === null || v === undefined) ? '' : String(v); }
-
-    function getRankClass(rango) {
-      const r = String(rango || '').toUpperCase();
-      if (r.includes('EMERALD')) return 'emerald';
-      if (r.includes('GOLD')) return 'gold';
-      if (r.includes('DIAMOND')) return 'diamond';
-      if (r.includes('MASTER')) return 'master';
-      return '';
-    }
-
-    function setCardBackground(card, row) {
-      const champ = row?.champMaestriaNombre || row?.ultimoCampeon || '';
-      const splash = champ ? `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ}_0.jpg` : '';
-      if (splash) card.style.backgroundImage = `linear-gradient(180deg, rgba(17,24,32,.78) 0%, rgba(22,32,43,.92) 100%), url('${splash}')`;
-    }
-
-    function getTipsByRow(row) {
-      const winRate = parseFloat(String(getRealWinrate(row)).replace('%','')) || 0;
-      const lp = parseNum(row.lp);
-      const rank = String(row.rango || '').toUpperCase();
-      if (rank.includes('MASTER') || rank.includes('DIAMOND')) return 'Consejo: tu fuerte está en la consistencia. Si mantienes winrate y pool de campeones, puedes dominar el draft.';
-      if (winRate >= 60) return 'Consejo: estás con buen ritmo. Prioriza campeones en los que ya tengas impacto temprano y no fuerces picks raros.';
-      if (lp >= 100) return 'Consejo: el LP indica que estás cerca de una transición de división. Juega seguro y evita trades innecesarios.';
-      return 'Consejo: revisa tendencia de victorias, campeón más jugado y el rango. Con eso puedes afinar decisiones para el equipo.';
     }
 
     function openModal(row) {
-      selectedPlayer = row;
       const modal = document.getElementById('modal');
       const title = document.getElementById('modalTitle');
       const subtitle = document.getElementById('modalSubtitle');
@@ -744,9 +750,10 @@
       const champCard = document.getElementById('modalChampCard');
       const modalTips = document.getElementById('modalTips');
       const links = buildExternalLinks(row);
-      const champ = row.champMaestriaNombre || row.ultimoCampeon || '';
-      const splash = champ ? `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ}_0.jpg` : '';
-      const champIcon = champ ? `https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/${champ}.png` : '';
+
+      const champ = row.champMaestriaNombre || row.ultimoChamp || '';
+      const splash = getChampionSplash(champ);
+      const champIcon = getChampionSquare(champ);
 
       title.textContent = row.jugador || '';
       subtitle.textContent = row.rango || '';
@@ -755,19 +762,29 @@
         ? `linear-gradient(90deg, rgba(11,15,20,.88) 0%, rgba(11,15,20,.52) 45%, rgba(11,15,20,.12) 100%), url('${splash}') center/cover no-repeat`
         : `linear-gradient(90deg, rgba(11,15,20,.88) 0%, rgba(11,15,20,.52) 45%, rgba(11,15,20,.12) 100%)`;
 
-      champCard.style.display = champ ? 'flex' : 'none';
-      champCard.innerHTML = champ ? `${champIcon ? `<img src="${champIcon}" alt="${champ}">` : ''}<div><div class="champ-name">${cleanValue(champ)}</div><div class="champ-sub">Campeón con más maestría</div></div>` : '';
+      if (champ && champ !== 'N/A') {
+        champCard.style.display = 'flex';
+        champCard.innerHTML = `
+          ${champIcon ? `<img src="${champIcon}" alt="${champ}">` : ''}
+          <div>
+            <div class="champ-name">${cleanValue(champ)}</div>
+            <div class="champ-sub">Campeón con más maestría</div>
+          </div>
+        `;
+      } else {
+        champCard.style.display = 'none';
+        champCard.innerHTML = '';
+      }
 
       details.innerHTML = `
         <div class="modal-item"><div class="label">Rango</div><div class="value ${getRankClass(row.rango)}">${cleanValue(row.rango)}</div></div>
         <div class="modal-item"><div class="label">LP</div><div class="value info">${cleanValue(row.lp)}</div></div>
-        <div class="modal-item"><div class="label">Victorias</div><div class="value">${cleanValue(row.wins ?? row.victorias)}</div></div>
-        <div class="modal-item"><div class="label">Derrotas</div><div class="value">${cleanValue(row.losses ?? row.derrotas)}</div></div>
+        <div class="modal-item"><div class="label">Victorias</div><div class="value">${cleanValue(row.wins)}</div></div>
+        <div class="modal-item"><div class="label">Derrotas</div><div class="value">${cleanValue(row.losses)}</div></div>
         <div class="modal-item"><div class="label">Winrate</div><div class="value warn">${getRealWinrate(row)}</div></div>
         <div class="modal-item"><div class="label">Nivel</div><div class="value">${cleanValue(row.nivel)}</div></div>
-        <div class="modal-item"><div class="label">Último Campeón</div><div class="value">${cleanValue(row.ultimoCampeon)}</div></div>
+        <div class="modal-item"><div class="label">Último Campeón</div><div class="value">${cleanValue(row.ultimoChamp)}</div></div>
         <div class="modal-item"><div class="label">Pentas</div><div class="value">${cleanValue(row.pentas)}</div></div>
-        <div class="modal-item"><div class="label">Visión</div><div class="value good">${cleanValue(row.vision)}</div></div>
         <div class="modal-item"><div class="label">KDA</div><div class="value">${cleanValue(row.kda)}</div></div>
         <div class="modal-item"><div class="label">KP%</div><div class="value warn">${cleanValue(row.kp)}</div></div>
         <div class="modal-item"><div class="label">DPM</div><div class="value purple">${cleanValue(row.dpm)}</div></div>
@@ -780,18 +797,12 @@
       document.getElementById('linkUgg').href = links.ugg;
 
       modalTips.textContent = getTipsByRow(row);
-      renderPlayerMatches(row);
-      renderChart(currentData);
       modal.classList.add('open');
     }
 
     function closeModal(event) {
       if (event && event.target !== event.currentTarget) return;
       document.getElementById('modal').classList.remove('open');
-    }
-
-    function getLinkOpgg(row){
-      return `https://op.gg/lol/summoners/lan/${encodeURIComponent(row.jugador || '')}-${encodeURIComponent(row.tag || '')}`;
     }
 
     function renderCards(data, message = '') {
@@ -802,19 +813,22 @@
         cards.innerHTML = '<div class="empty">No se encontraron datos.</div>';
         status.textContent = message;
         renderChart([]);
-        renderGroupMatches([]);
+        renderRecordList([]);
         return;
       }
 
       cards.innerHTML = data.map((row, idx) => {
         const rankClass = getRankClass(row.rango);
-        const opgg = getLinkOpgg(row);
+        const opgg = `https://op.gg/lol/summoners/lan/${encodeURIComponent(row.jugador || '')}-${encodeURIComponent(row.tag || '')}`;
+        const iconUrl = `https://ddragon.leagueoflegends.com/cdn/14.8.1/img/profileicon/${cleanValue(row.profileIconId)}.png`;
+
         return `
           <article class="card" onclick="openModal(currentData[${idx}])">
             <div class="profile-wrap">
               <div class="level-badge">${cleanValue(row.nivel) || '0'}</div>
-              <img class="profile-icon" src="https://ddragon.leagueoflegends.com/cdn/14.8.1/img/profileicon/${cleanValue(row.profileIconId)}.png" alt="Perfil">
+              <img class="profile-icon" src="${iconUrl}" alt="Perfil" onerror="this.style.display='none'">
             </div>
+
             <div class="card-head">
               <div class="name ${rankClass} center-text">
                 <a href="${opgg}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">
@@ -822,7 +836,10 @@
                 </a>
               </div>
             </div>
-            <div class="rank ${rankClass}"><span>${cleanValue(row.rango)}</span></div>
+
+            <div class="rank ${rankClass}">
+              <span>${cleanValue(row.rango)}</span>
+            </div>
           </article>
         `;
       }).join('');
@@ -830,11 +847,17 @@
       [...cards.querySelectorAll('.card')].forEach((card, idx) => setCardBackground(card, data[idx]));
       status.textContent = message;
       renderChart(data);
-      renderGroupMatches(data);
+      renderRecordList(data);
     }
 
-    function saveCards(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-    function loadSavedCards() { const saved = localStorage.getItem(STORAGE_KEY); return saved ? JSON.parse(saved) : []; }
+    function saveCards(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadSavedCards() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    }
 
     async function loadData() {
       const status = document.getElementById('status');
@@ -847,16 +870,23 @@
       } catch (err) {
         const saved = loadSavedCards();
         currentData = saved;
-        if (saved.length) renderCards(saved, 'Mostrando datos guardados.');
-        else renderCards([], `Error: ${err.message}`);
+        if (saved.length) {
+          renderCards(saved, 'Mostrando datos guardados.');
+        } else {
+          renderCards([], `Error: ${err.message}`);
+        }
       }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
       const saved = loadSavedCards();
       currentData = saved;
-      if (saved.length) renderCards(saved, 'Mostrando datos guardados.');
-      else { renderChart([]); renderGroupMatches([]); }
+      if (saved.length) {
+        renderCards(saved, 'Mostrando datos guardados.');
+      } else {
+        renderChart([]);
+        renderRecordList([]);
+      }
     });
   </script>
 </body>
