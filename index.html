@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LOL Tracker LAN</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root{
@@ -35,7 +36,7 @@
     }
 
     .container{
-      max-width:1200px;
+      max-width:1400px;
       margin:0 auto;
     }
 
@@ -76,10 +77,47 @@
       box-shadow: 0 10px 24px rgba(209,54,57,.25);
     }
 
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0, 1.4fr) minmax(320px, .9fr);
+      gap:18px;
+      align-items:start;
+    }
+
     .cards{
       display:grid;
       grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
       gap:18px;
+    }
+
+    .sidebar{
+      position:sticky;
+      top:18px;
+      background:linear-gradient(180deg, rgba(17,24,32,.92), rgba(22,32,43,.96));
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      padding:16px;
+      min-height:420px;
+    }
+
+    .sidebar h2{
+      margin:0 0 12px;
+      font-size:18px;
+      letter-spacing:.3px;
+    }
+
+    .chart-wrap{
+      position:relative;
+      height:360px;
+      width:100%;
+    }
+
+    .chart-empty{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.5;
+      padding:10px 0 0;
     }
 
     .card{
@@ -167,18 +205,15 @@
     }
 
     .name{
-      font-size:20px;
-      font-weight:800;
-      line-height:1.1;
+      font-size:24px;
+      font-weight:900;
+      line-height:1.05;
       text-align:center;
       word-break:break-word;
     }
 
     .tag{
-      color:var(--muted);
-      margin-top:4px;
-      font-size:13px;
-      text-align:center;
+      display:none;
     }
 
     .rank{
@@ -378,14 +413,8 @@
     }
 
     @keyframes fadeUp{
-      from{
-        opacity:0;
-        transform: translateY(12px);
-      }
-      to{
-        opacity:1;
-        transform: translateY(0);
-      }
+      from{ opacity:0; transform: translateY(12px); }
+      to{ opacity:1; transform: translateY(0); }
     }
 
     @keyframes modalFade{
@@ -396,6 +425,16 @@
     @keyframes modalPop{
       from{ opacity:0; transform: translateY(16px) scale(.98); }
       to{ opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 980px){
+      .layout{
+        grid-template-columns:1fr;
+      }
+      .sidebar{
+        position:relative;
+        top:auto;
+      }
     }
 
     @media (max-width: 640px){
@@ -421,8 +460,22 @@
       <button onclick="loadData()">Cargar datos</button>
     </div>
 
-    <div id="cards" class="cards">
-      <div class="empty">Presiona “Cargar datos” para ver los jugadores.</div>
+    <div class="layout">
+      <div>
+        <div id="cards" class="cards">
+          <div class="empty">Presiona “Cargar datos” para ver los jugadores.</div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <h2>Historial</h2>
+        <div class="chart-wrap">
+          <canvas id="historyChart"></canvas>
+        </div>
+        <div class="chart-empty">
+          La gráfica quedará lista para mostrar historial de LP más adelante.
+        </div>
+      </aside>
     </div>
 
     <div id="status" class="status"></div>
@@ -441,9 +494,7 @@
       </div>
       <div class="modal-content">
         <div id="modalDetails" class="modal-details"></div>
-        <div class="tips">
-          <strong>Consejos rápidos:</strong> Revisa el rango, el winrate y el campeón de maestría antes de decidir la composición. Si el campeón destacado tiene buen control de línea o presión, suele ser una pista útil para el draft.
-        </div>
+        <div id="modalTips" class="tips"></div>
       </div>
     </div>
   </div>
@@ -452,6 +503,7 @@
   <script>
     const STORAGE_KEY = 'lol-tracker-cards';
     let currentData = [];
+    let historyChart = null;
 
     function getRankIcon(rango) {
       const r = String(rango || '').toLowerCase();
@@ -501,6 +553,23 @@
       }
     }
 
+    function getTipsByRow(row) {
+      const winRate = parseInt(String(row.winRate || '').replace('%','')) || 0;
+      const lp = parseInt(String(row.lp || '').replace(/[^\d-]/g,'')) || 0;
+      const rank = String(row.rango || '').toUpperCase();
+
+      if (rank.includes('MASTER') || rank.includes('DIAMOND')) {
+        return 'Consejo: tu fuerte está en la consistencia. Si mantienes winrate y pool de campeones, puedes dominar el draft.';
+      }
+      if (winRate >= 60) {
+        return 'Consejo: estás con buen ritmo. Prioriza campeones en los que ya tengas impacto temprano y no fuerces picks raros.';
+      }
+      if (lp >= 100) {
+        return 'Consejo: el LP indica que estás cerca de una transición de división. Juega seguro y evita trades innecesarios.';
+      }
+      return 'Consejo: revisa tendencia de victorias, campeón más jugado y el rango. Con eso puedes afinar decisiones para el equipo.';
+    }
+
     function openModal(row) {
       const modal = document.getElementById('modal');
       const title = document.getElementById('modalTitle');
@@ -508,13 +577,14 @@
       const details = document.getElementById('modalDetails');
       const banner = document.getElementById('modalBanner');
       const champCard = document.getElementById('modalChampCard');
+      const modalTips = document.getElementById('modalTips');
 
       const champ = row.champMaestriaNombre || row.ultimoCampeon || '';
       const splash = getChampionSplash(champ);
       const champIcon = getChampionSquare(champ);
 
       title.textContent = row.jugador || '';
-      subtitle.textContent = row.tag ? `#${row.tag}` : '';
+      subtitle.textContent = row.rango || '';
 
       banner.style.background = splash
         ? `linear-gradient(90deg, rgba(11,15,20,.88) 0%, rgba(11,15,20,.52) 45%, rgba(11,15,20,.12) 100%), url('${splash}') center/cover no-repeat`
@@ -549,6 +619,8 @@
         <div class="modal-item"><div class="label">DPM</div><div class="value purple">${cleanValue(row.dpm)}</div></div>
       `;
 
+      modalTips.textContent = getTipsByRow(row);
+
       modal.classList.add('open');
     }
 
@@ -564,6 +636,7 @@
       if (!data.length) {
         cards.innerHTML = '<div class="empty">No se encontraron datos.</div>';
         status.textContent = message;
+        renderChart([]);
         return;
       }
 
@@ -578,8 +651,11 @@
 
             <div class="card-head">
               <div>
-                <div class="name center-text">${cleanValue(row.jugador)}</div>
-                <div class="tag center-text">${cleanValue(row.tag) ? '#' + cleanValue(row.tag) : ''}</div>
+                <div class="name ${rankClass} center-text">
+                  <a href="https://op.gg/lol/summoners/lan/${encodeURIComponent(row.jugador || '')}-${encodeURIComponent(row.tag || '')}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">
+                    ${cleanValue(row.jugador)}
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -592,6 +668,58 @@
 
       [...cards.querySelectorAll('.card')].forEach((card, idx) => setCardBackground(card, data[idx]));
       status.textContent = message;
+      renderChart(data);
+    }
+
+    function renderChart(data) {
+      const ctx = document.getElementById('historyChart');
+      if (!ctx) return;
+
+      const labels = data.map(x => x.jugador);
+      const values = data.map(x => {
+        const n = parseInt(String(x.lp || '').replace(/[^\d-]/g,'')) || 0;
+        return n;
+      });
+
+      if (historyChart) historyChart.destroy();
+
+      historyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'LP',
+            data: values,
+            borderWidth: 0,
+            backgroundColor: '#d13639',
+            hoverBackgroundColor: '#f25c5f',
+            borderRadius: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'LP por jugador',
+              color: '#e7edf4'
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#8a97a6' },
+              grid: { color: 'rgba(255,255,255,.06)' }
+            },
+            y: {
+              ticks: { color: '#e7edf4' },
+              grid: { display: false }
+            }
+          }
+        }
+      });
     }
 
     function saveCards(data) {
@@ -627,6 +755,8 @@
       currentData = saved;
       if (saved.length) {
         renderCards(saved, 'Mostrando datos guardados.');
+      } else {
+        renderChart([]);
       }
     });
   </script>
