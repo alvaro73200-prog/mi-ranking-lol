@@ -84,7 +84,7 @@
       border-radius:18px;
       box-shadow:var(--shadow);
       padding:16px;
-      min-height:260px;
+      min-height:220px;
       display:flex;
       flex-direction:column;
       gap:14px;
@@ -140,63 +140,6 @@
       flex-wrap:wrap;
     }
 
-    .champion{
-      color:var(--muted);
-      font-size:13px;
-      margin-top:4px;
-      line-height:1.35;
-    }
-
-    .pentas{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      margin-top:8px;
-      padding:6px 10px;
-      border-radius:999px;
-      background:rgba(168,85,247,.14);
-      border:1px solid rgba(168,85,247,.35);
-      color:#f3e8ff;
-      font-size:12px;
-      font-weight:800;
-      width:fit-content;
-    }
-
-    .stats{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(115px, 1fr));
-      gap:10px;
-      margin-top:auto;
-    }
-
-    .stat{
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.05);
-      border-radius:12px;
-      padding:10px;
-      min-height:70px;
-    }
-
-    .label{
-      color:var(--muted);
-      font-size:12px;
-      margin-bottom:6px;
-      text-transform:uppercase;
-      letter-spacing:.04em;
-    }
-
-    .value{
-      font-size:18px;
-      font-weight:800;
-      line-height:1.15;
-      word-break:break-word;
-    }
-
-    .value.good{ color:var(--good); }
-    .value.info{ color:var(--info); }
-    .value.warn{ color:var(--warn); }
-    .value.purple{ color:var(--purple); }
-
     .footer{
       margin-top:18px;
       color:var(--muted);
@@ -232,7 +175,6 @@
       body{ padding:16px; }
       .cards{ grid-template-columns:1fr; }
       .card{ padding:14px; }
-      .stats{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
       .rank-icon{ width:50px; height:50px; min-width:50px; min-height:50px; }
     }
   </style>
@@ -289,7 +231,6 @@
 
       cards.innerHTML = data.map(row => {
         const icon = getRankIcon(row.rango);
-        const pentas = Number(row.pentas || 0);
         return `
           <article class="card">
             <div class="card-head">
@@ -303,39 +244,6 @@
             <div class="rank">
               <span>${cleanValue(row.rango)}</span>
               <span style="color:var(--muted);font-weight:600;">${row.nivel ? `Nv. ${cleanValue(row.nivel)}` : ''}</span>
-            </div>
-
-            <div class="champion">
-              Último Campeón: <strong style="color:var(--text)">${cleanValue(row.ultimoCampeon) || 'Sin datos'}</strong>
-            </div>
-
-            ${pentas > 0 ? `<div class="pentas">✨ ${pentas} Pentas</div>` : ''}
-
-            <div class="stats">
-              <div class="stat">
-                <div class="label">LP</div>
-                <div class="value info">${cleanValue(row.lp)}</div>
-              </div>
-              <div class="stat">
-                <div class="label">WR</div>
-                <div class="value">${cleanValue(row.winRate)}</div>
-              </div>
-              <div class="stat">
-                <div class="label">Visión</div>
-                <div class="value good">${cleanValue(row.vision)}</div>
-              </div>
-              <div class="stat">
-                <div class="label">KDA</div>
-                <div class="value">${cleanValue(row.kda)}</div>
-              </div>
-              <div class="stat">
-                <div class="label">KP%</div>
-                <div class="value warn">${cleanValue(row.kp)}</div>
-              </div>
-              <div class="stat">
-                <div class="label">DPM</div>
-                <div class="value purple">${cleanValue(row.dpm)}</div>
-              </div>
             </div>
           </article>
         `;
