@@ -307,6 +307,39 @@
     .value.warn{ color:var(--warn); }
     .value.purple{ color:var(--purple); }
 
+    .champ-card{
+      margin-top:14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:12px;
+      border-radius:16px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      width:fit-content;
+    }
+
+    .champ-card img{
+      width:56px;
+      height:56px;
+      border-radius:14px;
+      object-fit:cover;
+      border:1px solid rgba(255,255,255,.1);
+    }
+
+    .champ-card .champ-name{
+      font-size:16px;
+      font-weight:900;
+      color:#fff;
+      line-height:1.1;
+    }
+
+    .champ-card .champ-sub{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:3px;
+    }
+
     @keyframes fadeUp{
       from{
         opacity:0;
@@ -325,6 +358,7 @@
       .title{ font-size:36px; }
       .rank-icon{ width:50px; height:50px; min-width:50px; min-height:50px; }
       .modal-banner{ min-height:180px; }
+      .champ-card{ width:100%; }
     }
   </style>
 </head>
@@ -351,6 +385,7 @@
         <div class="banner-content">
           <h1 id="modalTitle" style="margin:0 0 6px;font-size:34px;">Jugador</h1>
           <p id="modalSubtitle" style="margin:0;color:var(--muted);font-weight:700;"></p>
+          <div id="modalChampCard" class="champ-card" style="display:none;"></div>
         </div>
       </div>
       <div class="modal-content">
@@ -385,6 +420,12 @@
       return `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ}_0.jpg`;
     }
 
+    function getChampionSquare(name) {
+      const champ = String(name || '').trim();
+      if (!champ) return '';
+      return `https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/${champ}.png`;
+    }
+
     function cleanValue(v) {
       return (v === null || v === undefined) ? '' : String(v);
     }
@@ -412,9 +453,11 @@
       const subtitle = document.getElementById('modalSubtitle');
       const details = document.getElementById('modalDetails');
       const banner = document.getElementById('modalBanner');
+      const champCard = document.getElementById('modalChampCard');
 
       const champ = row.champMaestriaNombre || row.ultimoCampeon || '';
       const splash = getChampionSplash(champ);
+      const champIcon = getChampionSquare(champ);
 
       title.textContent = row.jugador || '';
       subtitle.textContent = row.tag ? `#${row.tag}` : '';
@@ -422,6 +465,20 @@
       banner.style.background = splash
         ? `linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.65) 45%, rgba(11,15,20,.2) 100%), url('${splash}') center/cover no-repeat`
         : `linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.65) 45%, rgba(11,15,20,.2) 100%)`;
+
+      if (champ) {
+        champCard.style.display = 'flex';
+        champCard.innerHTML = `
+          ${champIcon ? `<img src="${champIcon}" alt="${champ}">` : ''}
+          <div>
+            <div class="champ-name">${cleanValue(champ)}</div>
+            <div class="champ-sub">Campeón con más maestría</div>
+          </div>
+        `;
+      } else {
+        champCard.style.display = 'none';
+        champCard.innerHTML = '';
+      }
 
       details.innerHTML = `
         <div class="modal-item"><div class="label">Rango</div><div class="value ${getRankClass(row.rango)}">${cleanValue(row.rango)}</div></div>
