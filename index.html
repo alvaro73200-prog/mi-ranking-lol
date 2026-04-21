@@ -44,7 +44,7 @@
       font-size:44px;
       font-weight:900;
       letter-spacing:1px;
-      font-family:"Trebuchet MS", "Segoe UI", Arial, sans-serif;
+      font-family:"Trebuchet MS","Segoe UI",Arial,sans-serif;
       text-align:left;
       color:#f4f7fb;
       text-shadow:0 8px 24px rgba(0,0,0,.35);
@@ -95,7 +95,7 @@
       display:flex;
       flex-direction:column;
       gap:14px;
-      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
       animation: fadeUp .35s ease both;
       cursor:pointer;
       background-size:cover;
@@ -216,6 +216,97 @@
       background:rgba(255,255,255,.02);
     }
 
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(3, 8, 12, .82);
+      backdrop-filter: blur(8px);
+      z-index:9999;
+      padding:18px;
+    }
+
+    .modal.open{
+      display:flex;
+    }
+
+    .modal-card{
+      width:min(980px, 100%);
+      border-radius:24px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg, rgba(17,24,32,.98), rgba(22,32,43,.98));
+      box-shadow:0 30px 80px rgba(0,0,0,.55);
+      color:var(--text);
+      position:relative;
+    }
+
+    .modal-banner{
+      min-height:220px;
+      padding:22px;
+      display:flex;
+      align-items:flex-end;
+      background:
+        linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.65) 45%, rgba(11,15,20,.2) 100%),
+        center/cover no-repeat;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    .modal-content{
+      padding:18px;
+    }
+
+    .modal-close{
+      position:absolute;
+      top:14px;
+      right:14px;
+      width:40px;
+      height:40px;
+      border:0;
+      border-radius:50%;
+      background:rgba(255,255,255,.10);
+      color:#fff;
+      font-size:20px;
+      font-weight:800;
+      cursor:pointer;
+      z-index:2;
+    }
+
+    .modal-details{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .modal-item{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:14px;
+      padding:12px;
+    }
+
+    .modal-item .label{
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:6px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .modal-item .value{
+      font-size:17px;
+      font-weight:800;
+      word-break:break-word;
+    }
+
+    .value.good{ color:var(--good); }
+    .value.info{ color:var(--info); }
+    .value.warn{ color:var(--warn); }
+    .value.purple{ color:var(--purple); }
+
     @keyframes fadeUp{
       from{
         opacity:0;
@@ -232,6 +323,8 @@
       .cards{ grid-template-columns:1fr; }
       .card{ padding:14px; min-height:240px; }
       .title{ font-size:36px; }
+      .rank-icon{ width:50px; height:50px; min-width:50px; min-height:50px; }
+      .modal-banner{ min-height:180px; }
     }
   </style>
 </head>
@@ -249,6 +342,21 @@
 
     <div id="status" class="status"></div>
     <div class="footer">Datos cargados desde Google Sheets con tu CSV público.</div>
+  </div>
+
+  <div id="modal" class="modal" onclick="closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <div id="modalBanner" class="modal-banner">
+        <div class="banner-content">
+          <h1 id="modalTitle" style="margin:0 0 6px;font-size:34px;">Jugador</h1>
+          <p id="modalSubtitle" style="margin:0;color:var(--muted);font-weight:700;"></p>
+        </div>
+      </div>
+      <div class="modal-content">
+        <div id="modalDetails" class="modal-details"></div>
+      </div>
+    </div>
   </div>
 
   <script src="./data.js"></script>
@@ -298,6 +406,46 @@
       }
     }
 
+    function openModal(row) {
+      const modal = document.getElementById('modal');
+      const title = document.getElementById('modalTitle');
+      const subtitle = document.getElementById('modalSubtitle');
+      const details = document.getElementById('modalDetails');
+      const banner = document.getElementById('modalBanner');
+
+      const champ = row.champMaestriaNombre || row.ultimoCampeon || '';
+      const splash = getChampionSplash(champ);
+
+      title.textContent = row.jugador || '';
+      subtitle.textContent = row.tag ? `#${row.tag}` : '';
+
+      banner.style.background = splash
+        ? `linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.65) 45%, rgba(11,15,20,.2) 100%), url('${splash}') center/cover no-repeat`
+        : `linear-gradient(90deg, rgba(11,15,20,.94) 0%, rgba(11,15,20,.65) 45%, rgba(11,15,20,.2) 100%)`;
+
+      details.innerHTML = `
+        <div class="modal-item"><div class="label">Rango</div><div class="value ${getRankClass(row.rango)}">${cleanValue(row.rango)}</div></div>
+        <div class="modal-item"><div class="label">LP</div><div class="value info">${cleanValue(row.lp)}</div></div>
+        <div class="modal-item"><div class="label">Victorias</div><div class="value">${cleanValue(row.wins || row.victorias)}</div></div>
+        <div class="modal-item"><div class="label">Derrotas</div><div class="value">${cleanValue(row.losses || row.derrotas)}</div></div>
+        <div class="modal-item"><div class="label">Winrate</div><div class="value warn">${cleanValue(row.winRate)}</div></div>
+        <div class="modal-item"><div class="label">Nivel</div><div class="value">${cleanValue(row.nivel)}</div></div>
+        <div class="modal-item"><div class="label">Último Campeón</div><div class="value">${cleanValue(row.ultimoCampeon)}</div></div>
+        <div class="modal-item"><div class="label">Pentas</div><div class="value">${cleanValue(row.pentas)}</div></div>
+        <div class="modal-item"><div class="label">Visión</div><div class="value good">${cleanValue(row.vision)}</div></div>
+        <div class="modal-item"><div class="label">KDA</div><div class="value">${cleanValue(row.kda)}</div></div>
+        <div class="modal-item"><div class="label">KP%</div><div class="value warn">${cleanValue(row.kp)}</div></div>
+        <div class="modal-item"><div class="label">DPM</div><div class="value purple">${cleanValue(row.dpm)}</div></div>
+      `;
+
+      modal.classList.add('open');
+    }
+
+    function closeModal(event) {
+      if (event && event.target !== event.currentTarget) return;
+      document.getElementById('modal').classList.remove('open');
+    }
+
     function renderCards(data, message = '') {
       const cards = document.getElementById('cards');
       const status = document.getElementById('status');
@@ -312,10 +460,10 @@
         const icon = getRankIcon(row.rango);
         const rankClass = getRankClass(row.rango);
         return `
-          <article class="card" onclick="openModal(currentData[${idx}])" data-index="${idx}">
+          <article class="card" onclick="openModal(currentData[${idx}])">
             <div class="profile-wrap">
               <div class="level-badge">${cleanValue(row.nivel) || '0'}</div>
-              ${row.profileIconId ? `<img class="profile-icon" src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/profileicon/${cleanValue(row.profileIconId)}.png" alt="Perfil">` : `<div class="profile-icon"></div>`}
+              <img class="profile-icon" src="https://ddragon.leagueoflegends.com/cdn/14.8.1/img/profileicon/${cleanValue(row.profileIconId)}.png" alt="Perfil">
             </div>
 
             <div class="card-head">
