@@ -273,6 +273,10 @@
       return '';
     }
 
+    function cleanValue(v) {
+      return (v === null || v === undefined) ? '' : String(v);
+    }
+
     function renderCards(data, message = '') {
       const cards = document.getElementById('cards');
       const status = document.getElementById('status');
@@ -286,53 +290,51 @@
       cards.innerHTML = data.map(row => {
         const icon = getRankIcon(row.rango);
         const pentas = Number(row.pentas || 0);
-        const hasPentas = pentas > 0;
-
         return `
           <article class="card">
             <div class="card-head">
-              ${icon ? `<img class="rank-icon" src="${icon}" alt="${row.rango || 'Rango'}">` : ''}
+              ${icon ? `<img class="rank-icon" src="${icon}" alt="${cleanValue(row.rango)}">` : ''}
               <div>
-                <div class="name">${row.jugador || ''}</div>
-                <div class="tag">${row.tag ? '#' + row.tag : ''}</div>
+                <div class="name">${cleanValue(row.jugador)}</div>
+                <div class="tag">${cleanValue(row.tag) ? '#' + cleanValue(row.tag) : ''}</div>
               </div>
             </div>
 
             <div class="rank">
-              <span>${row.rango || ''}</span>
-              <span style="color:var(--muted);font-weight:600;">${row.nivel ? `Nv. ${row.nivel}` : ''}</span>
+              <span>${cleanValue(row.rango)}</span>
+              <span style="color:var(--muted);font-weight:600;">${row.nivel ? `Nv. ${cleanValue(row.nivel)}` : ''}</span>
             </div>
 
             <div class="champion">
-              Último Campeón: <strong style="color:var(--text)">${row.ultimoCampeon || row.lastChampion || 'Sin datos'}</strong>
+              Último Campeón: <strong style="color:var(--text)">${cleanValue(row.ultimoCampeon) || 'Sin datos'}</strong>
             </div>
 
-            ${hasPentas ? `<div class="pentas">✨ ${pentas} Pentas</div>` : ''}
+            ${pentas > 0 ? `<div class="pentas">✨ ${pentas} Pentas</div>` : ''}
 
             <div class="stats">
               <div class="stat">
                 <div class="label">LP</div>
-                <div class="value info">${row.lp || ''}</div>
+                <div class="value info">${cleanValue(row.lp)}</div>
               </div>
               <div class="stat">
                 <div class="label">WR</div>
-                <div class="value">${row.wr || row.winRate || ''}</div>
+                <div class="value">${cleanValue(row.winRate || row.wr)}</div>
               </div>
               <div class="stat">
                 <div class="label">Visión</div>
-                <div class="value good">${row.vision || ''}</div>
+                <div class="value good">${cleanValue(row.vision)}</div>
               </div>
               <div class="stat">
                 <div class="label">KDA</div>
-                <div class="value">${row.kda || ''}</div>
+                <div class="value">${cleanValue(row.kda)}</div>
               </div>
               <div class="stat">
                 <div class="label">KP%</div>
-                <div class="value warn">${row.kp || ''}</div>
+                <div class="value warn">${cleanValue(row.kp)}</div>
               </div>
               <div class="stat">
                 <div class="label">DPM</div>
-                <div class="value purple">${row.dpm || ''}</div>
+                <div class="value purple">${cleanValue(row.dpm)}</div>
               </div>
             </div>
           </article>
