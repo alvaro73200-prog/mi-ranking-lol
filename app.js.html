@@ -1,13 +1,4 @@
 <script>
-  const demoData = {
-    timestamp: new Date().toISOString(),
-    players: [
-      { riotId: 'Grey#W8TM', lp: 75, tier: 'GOLD', rank: 'II', champion: 'Yasuo', live: 'off', wr: 57, wins: 34, losses: 26 },
-      { riotId: 'Player2#LAN', lp: 42, tier: 'SILVER', rank: 'I', champion: 'Jinx', live: 'on', wr: 61, wins: 31, losses: 20 },
-      { riotId: 'Player3#LAN', lp: 110, tier: 'PLATINUM', rank: 'IV', champion: 'Ahri', live: 'wait', wr: 54, wins: 40, losses: 34 }
-    ]
-  };
-
   let chart = null;
 
   function formatTime(iso){
@@ -161,11 +152,11 @@
         .withSuccessHandler(renderAll)
         .withFailureHandler(err => {
           console.error(err);
-          renderAll(demoData);
+          document.getElementById('playersTable').innerHTML = '<tr><td colspan="7" class="empty">Error cargando datos.</td></tr>';
+          document.getElementById('cardsArea').innerHTML = '<div class="empty">No se pudieron cargar las tarjetas.</div>';
+          document.getElementById('historyArea').innerHTML = '<div class="empty">No se pudo cargar el historial.</div>';
         })
         .getOracleData();
-    } else {
-      renderAll(demoData);
     }
   }
 
