@@ -1,0 +1,14 @@
+# API Key privada (NO subir)
+secret.html
+
+# Backups viejos
+*.html.txt
+*.gs.txt
+*.hmtl.txt
+
+# Google Apps Script CLI
+.clasp.json
+
+# Sistema
+.DS_Store
+Thumbs.db
