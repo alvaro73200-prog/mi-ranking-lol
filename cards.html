@@ -1,0 +1,85 @@
+<script>
+/**
+ * cards.html — Creación y renderizado de tarjetas de jugador
+ *
+ * Genera las tarjetas del carrusel Swiper con splash art del campeón
+ * favorito y las estadísticas resumidas de cada jugador.
+ */
+
+/**
+ * Crea un slide de Swiper con la tarjeta de un jugador.
+ * @param {Object} player — Objeto con datos del jugador.
+ * @returns {HTMLElement} — Elemento swiper-slide listo para insertar.
+ */
+function createPlayerCard(player) {
+  const slide = document.createElement('div');
+  slide.className = 'swiper-slide';
+
+  const card = document.createElement('div');
+  card.className = 'player-card';
+  card.dataset.player = player.Nombre;
+
+  const winrate  = player.PorcentajeVictorias || '0';
+  const champion = player.CampeonFavorito || '';
+  const splashUrl = getChampionSplashUrl(champion);
+
+  // Imagen de fondo con splash art si existe
+  const splashBg = splashUrl
+    ? `background-image: url('${splashUrl}');`
+    : '';
+
+  card.innerHTML = `
+    <!-- Splash art de fondo -->
+    <div class="card-splash" style="${splashBg}"></div>
+    <div class="card-overlay"></div>
+
+    <div class="card-content">
+      <div class="card-main">
+        <div class="player-name">
+          ${player.Nombre} <small style="color:#888">#${player.Tag}</small>
+        </div>
+        <div class="player-rank">${player.Rango || '-'}</div>
+        ${champion ? `<div class="player-champion">${champion}</div>` : ''}
+      </div>
+
+      <div class="card-details">
+        <h4>RANKED STATS</h4>
+        <div class="detail-row">
+          <span>LP (Puntos)</span>
+          <strong>${player.LP || '-'}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Winrate</span>
+          <strong style="color: var(--neon-blue)">${winrate}%</strong>
+        </div>
+
+        <h4>PARTIDAS</h4>
+        <div class="detail-row">
+          <span>Victorias</span>
+          <strong style="color: var(--green)">${player.Victorias || '-'}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Derrotas</span>
+          <strong style="color: var(--red)">${player.Derrotas || '-'}</strong>
+        </div>
+      </div>
+    </div>
+  `;
+
+  slide.appendChild(card);
+  return slide;
+}
+
+/**
+ * Renderiza todas las tarjetas dentro del contenedor del carrusel.
+ */
+function renderPlayerCards() {
+  const container = document.getElementById('player-cards-container');
+  if (!container) return;
+
+  container.innerHTML = '';
+  playersList.forEach(player => {
+    container.appendChild(createPlayerCard(player));
+  });
+}
+</script>

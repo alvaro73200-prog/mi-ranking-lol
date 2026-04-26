@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Oracle Lens — Tracker de estadísticas para jugadores de League of Legends en LAN">
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
+  <!-- Estilos propios -->
+  <?!= include('styles'); ?>
+</head>
+<body>
+  <div id="app">
+
+    <!-- ═══ ENCABEZADO ═══ -->
+    <header class="header-title">
+      <h1>ORACLE LENS</h1>
+      <div class="hextech-glow">LAN — LOL TRACKER</div>
+    </header>
+
+    <!-- ═══ CARRUSEL DE TARJETAS ═══ -->
+    <section class="swiper mySwiper" aria-label="Carrusel de jugadores">
+      <div class="swiper-wrapper" id="player-cards-container"></div>
+      <div class="swiper-pagination"></div>
+    </section>
+
+    <!-- ═══ LISTA DE JUGADORES ═══ -->
+    <section class="players-list-section" aria-label="Lista de jugadores">
+      <h3 class="section-title">Jugadores</h3>
+      <div id="players-list"></div>
+    </section>
+
+    <!-- ═══ DASHBOARD DE ESTADÍSTICAS ═══ -->
+    <section id="dashboard-content" aria-label="Estadísticas del jugador">
+      <h2>Selecciona un jugador</h2>
+    </section>
+
+  </div>
+
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <!-- Módulos de la aplicación (orden importa) -->
+  <?!= include('secret'); ?>
+  <?!= include('api'); ?>
+  <?!= include('players'); ?>
+  <?!= include('cards'); ?>
+  <?!= include('app'); ?>
+</body>
+</html>

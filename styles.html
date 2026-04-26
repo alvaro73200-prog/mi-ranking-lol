@@ -1,0 +1,299 @@
+<style>
+/* ═══════════════════════════════════════════════
+   Oracle Lens — Hoja de Estilos Principal
+   ═══════════════════════════════════════════════ */
+
+/* ─── Variables de diseño ─── */
+:root {
+  --bg-main:      #010a13;
+  --bg-secondary: #091428;
+  --bg-card:      rgba(9, 20, 40, 0.6);
+  --hextech-gold: #c8aa6e;
+  --text-light:   #f0e6d2;
+  --neon-blue:    #00f0ff;
+  --green:        #28a745;
+  --red:          #dc3545;
+  --radius-md:    12px;
+  --radius-lg:    16px;
+  --transition:   0.3s ease;
+}
+
+/* ─── Reset y base ─── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background: var(--bg-main);
+  color: var(--text-light);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ─── Encabezado ─── */
+.header-title {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header-title h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  background: linear-gradient(45deg, var(--hextech-gold), var(--neon-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 10px 0;
+  letter-spacing: 2px;
+}
+
+.hextech-glow {
+  font-size: 1.2rem;
+  color: var(--hextech-gold);
+  font-weight: 300;
+  text-shadow: 0 0 20px var(--hextech-gold);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { text-shadow: 0 0 20px var(--hextech-gold); }
+  to   { text-shadow: 0 0 30px var(--hextech-gold), 0 0 40px var(--hextech-gold); }
+}
+
+/* ─── Swiper / Carrusel ─── */
+.swiper-wrapper {
+  display: flex !important;
+  align-items: center;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.swiper-slide {
+  width: auto !important;
+  flex-shrink: 0;
+  transition: width 0.5s ease, transform 0.5s ease;
+}
+
+/* ─── Tarjetas de Jugador ─── */
+.player-card {
+  width: 260px;
+  height: 320px;
+  flex-shrink: 0;
+  background: var(--bg-card);
+  border: 1px solid rgba(200, 170, 110, 0.3);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Splash art de fondo */
+.card-splash {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  transition: transform 0.6s ease, opacity 0.5s ease;
+  z-index: 0;
+}
+
+/* Overlay oscuro para legibilidad del texto */
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(1, 10, 19, 0.95) 0%,
+    rgba(1, 10, 19, 0.6) 40%,
+    rgba(1, 10, 19, 0.2) 100%
+  );
+  z-index: 1;
+  transition: background var(--transition);
+}
+
+/* Contenido encima del splash */
+.card-content {
+  position: relative;
+  z-index: 2;
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.player-card:hover:not(.is-expanded) {
+  transform: scale(1.03);
+  box-shadow: 0 0 20px var(--neon-blue);
+  border-color: rgba(200, 170, 110, 0.5);
+}
+
+.player-card:hover:not(.is-expanded) .card-splash {
+  transform: scale(1.08);
+}
+
+.player-card.is-expanded {
+  width: 550px !important;
+  height: 400px;
+  z-index: 10;
+  border-radius: 20px;
+  border: 2px solid var(--hextech-gold);
+  margin: 0 10px;
+  box-shadow:
+    0 0 40px var(--neon-blue),
+    inset 0 0 20px rgba(200, 170, 110, 0.1);
+}
+
+.player-card.is-expanded .card-overlay {
+  background: linear-gradient(
+    to top,
+    rgba(1, 10, 19, 0.95) 0%,
+    rgba(1, 10, 19, 0.75) 50%,
+    rgba(1, 10, 19, 0.4) 100%
+  );
+}
+
+/* ─── Contenido de la tarjeta ─── */
+.card-main {
+  transition: opacity var(--transition);
+}
+
+.card-details {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transform: translateY(10px);
+  transition: all 0.4s ease 0.1s;
+  padding-top: 0;
+}
+
+.player-card.is-expanded .card-main {
+  opacity: 1;
+}
+
+.player-card.is-expanded .card-details {
+  opacity: 1;
+  max-height: 300px;
+  transform: translateY(0);
+  padding-top: 10px;
+}
+
+.player-name {
+  font-weight: 700;
+  font-size: 18px;
+  margin-top: 10px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.player-rank {
+  font-size: 14px;
+  color: var(--hextech-gold);
+  margin-top: 4px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+
+.player-champion {
+  font-size: 12px;
+  color: var(--neon-blue);
+  margin-top: 6px;
+  font-weight: 300;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.card-details h4 {
+  color: var(--hextech-gold);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 12px 0 8px 0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin: 6px 0;
+  color: var(--text-light);
+}
+
+.detail-row strong {
+  color: var(--hextech-gold);
+}
+
+/* ─── Lista de Jugadores ─── */
+.players-list-section {
+  margin: 40px 0;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  color: var(--hextech-gold);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+#players-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.player-row {
+  background: rgba(9, 20, 40, 0.4);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(200, 170, 110, 0.2);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.player-row:hover {
+  background: rgba(9, 20, 40, 0.7);
+  border-color: var(--hextech-gold);
+  box-shadow: 0 0 15px rgba(200, 170, 110, 0.3);
+}
+
+.player-row.is-expanded {
+  height: auto;
+  padding: 20px;
+}
+
+.player-row-name {
+  font-weight: 600;
+  flex: 1;
+}
+
+.player-row-rank {
+  color: var(--hextech-gold);
+  font-size: 0.9rem;
+}
+
+/* ─── Dashboard ─── */
+#dashboard-content {
+  margin-top: 30px;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+</style>
