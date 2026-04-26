@@ -16,13 +16,17 @@ function createPlayerCard(player) {
 
   card.innerHTML = `
     <div class="card-main">
-      <div class="player-name">${player.Nombre || "Jugador"} <small>#${player.Tag || ""}</small></div>
+      <div class="player-name">${player.Nombre || "Jugador"} <small style="color:#888">#${player.Tag || ""}</small></div>
       <div class="player-rank" style="color: var(--hextech-gold)">${player.Rango || "Unranked"}</div>
     </div>
     <div class="card-details">
-      <h4>RANKED STATS</h4>
-      <div class="detail-row"><span>LP</span><strong>${player.LP || 0}</strong></div>
-      <div class="detail-row"><span>Winrate</span><strong style="color: var(--neon-blue)">${player.PorcentajeVictorias || "0%"}</strong></div>
+      <h4 style="margin:0 0 10px 0; font-size:12px; color:var(--hextech-gold)">RANKED STATS</h4>
+      <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+        <span>LP</span><strong>${player.LP || 0}</strong>
+      </div>
+      <div style="display:flex; justify-content:space-between;">
+        <span>Winrate</span><strong style="color: var(--neon-blue)">${player.PorcentajeVictorias || "0%"}</strong>
+      </div>
     </div>
   `;
 
