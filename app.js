@@ -1,41 +1,39 @@
-// app.js completo corregido
 let swiperInstance = null;
 let expandedCard = null;
 window.playersList = [];
 
-// PEGA AQUÍ LA URL QUE COPIASTE DE GOOGLE
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7TMlBSwO9COYXSTSMs-IL4x2MKnCopZmhYreb3o6RGD5r3FBWb7DP-PXWqXKAy2a-/exec";
+// IMPORTANTE: Pon tu URL aquí. Debe terminar en /exec
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxLNXXW8kKB6bOPUzPhAZLkLeOahghfAO_29N2xaUgoifB36VJpsJMVFSgWE9NB7Plm/exec";
 
 async function cargarDatosDesdeGoogle() {
   try {
-    const response = await fetch(SCRIPT_URL);
+    // Usamos 'no-cache' para que siempre traiga los datos frescos del Excel
+    const response = await fetch(SCRIPT_URL, { method: 'GET', cache: 'no-cache' });
+    if (!response.ok) throw new Error("Error en la respuesta de red");
     const datos = await response.json();
     return datos;
   } catch (error) {
-    console.error("Error cargando datos:", error);
+    console.error("Fallo total en la carga:", error);
     return [];
   }
 }
 
 async function iniciarTodo() {
-  console.log("Conectando con Google Sheets...");
+  const dashboard = document.getElementById('dashboard-content');
+  dashboard.innerHTML = '<div class="loading">Cargando datos del Nexo...</div>';
   
-  // 1. Cargamos los datos reales
   window.playersList = await cargarDatosDesdeGoogle();
 
   if (window.playersList.length === 0) {
-    document.getElementById('dashboard-content').innerHTML = "<h2>Error al cargar datos</h2>";
+    dashboard.innerHTML = '<h2 style="color:red;">Error al cargar datos</h2><p>Revisa la consola (F12) y la configuración de acceso en Google.</p>';
     return;
   }
 
-  // 2. Renderizamos la interfaz
   renderPlayerCards();
   renderPlayersList();
 
-  // 3. Inicializamos Swiper
   if (typeof Swiper !== 'undefined') {
     if (swiperInstance) swiperInstance.destroy(true, true);
-    
     swiperInstance = new Swiper('.mySwiper', {
       slidesPerView: 'auto',
       spaceBetween: 20,
@@ -45,11 +43,10 @@ async function iniciarTodo() {
       observeParents: true
     });
   }
-
   document.addEventListener('click', handleDocumentClick);
+  dashboard.innerHTML = '<h2>Selecciona un jugador</h2><p>Haz clic para ver estadísticas</p>';
 }
 
-// Auxiliares (Asegúrate de que estén en tu archivo)
 function normalizeText(value) { return String(value ?? '').trim().toLowerCase(); }
 
 function findPlayerByTarget(targetName) {
@@ -68,7 +65,7 @@ function handleDocumentClick(e) {
   clickedCard.classList.add('is-expanded');
   expandedCard = clickedCard;
 
-  renderDashboard(playerFound, targetName);
+  renderDashboard(playerFound);
 }
 
 function renderPlayersList() {
@@ -84,13 +81,13 @@ function renderPlayersList() {
   });
 }
 
-function renderDashboard(playerFound, targetName) {
+function renderDashboard(playerFound) {
   const dashboard = document.getElementById('dashboard-content');
   if (!dashboard || !playerFound) return;
 
   const color = playerFound.Color_Hex || '#c8aa6e';
   dashboard.innerHTML = `
-    <div style="background:#0b0f14; border:1px solid ${color}; border-left: 5px solid ${color}; border-radius:18px; padding:20px; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
+    <div style="background:#0b0f14; border:1px solid ${color}; border-left: 5px solid ${color}; border-radius:18px; padding:20px; box-shadow: 0 0 20px rgba(0,0,0,0.5); color: white;">
       <h2 style="color:${color}; margin:0;">${playerFound.Nombre}#${playerFound.Tag}</h2>
       <p style="color:#888;">Campeón Favorito: ${playerFound.CampeonFavorito}</p>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:15px;">
