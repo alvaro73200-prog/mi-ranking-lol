@@ -3,16 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LOL Tracker - Premium Dashboard</title>
-
+  <title>LOL Tracker - GitHub Edition</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-
-  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    :root { --hextech-gold: #c8aa6e; --neon-blue: #00f2ff; --dark-bg: #05070a; }
+    body { background: var(--dark-bg); color: #e8e8e8; font-family: 'Roboto', sans-serif; margin: 0; padding: 20px; }
+    .header-title { text-align: center; margin-bottom: 30px; }
+    .header-title h1 { margin: 0; letter-spacing: 4px; color: white; }
+    .hextech-glow { color: var(--hextech-gold); font-weight: bold; text-shadow: 0 0 10px var(--hextech-gold); }
+    .swiper { width: 100%; padding: 50px 0; }
+    .swiper-slide { width: 300px; }
+    .player-card {
+      height: 400px; background-size: cover; background-position: center;
+      border: 1px solid var(--hextech-gold); border-radius: 15px;
+      display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden;
+    }
+    .card-main { background: rgba(0,0,0,0.8); padding: 15px; border-top: 1px solid var(--hextech-gold); }
+    .player-name { font-weight: bold; font-size: 1.2em; }
+    .player-rank { color: var(--hextech-gold); margin-top: 5px; }
+    .players-list-section { margin-top: 40px; border-top: 1px solid #333; padding-top: 20px; }
+    .player-row { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; transition: 0.3s; }
+    .player-row:hover { background: rgba(200, 170, 110, 0.1); }
+    #dashboard-content { margin-top: 30px; min-height: 200px; }
+    .loading-msg { text-align: center; color: var(--hextech-gold); padding: 50px; font-weight: bold; }
+  </style>
 </head>
 <body>
+
   <div id="app">
-    
     <div class="header-title">
       <h1>LOL TRACKER</h1>
       <div class="hextech-glow">LAN</div>
@@ -24,22 +44,99 @@
     </div>
 
     <div class="players-list-section">
-      <h3 class="section-title">Jugadores</h3>
+      <h3 style="color:var(--hextech-gold)">Jugadores</h3>
       <div id="players-list"></div>
     </div>
 
-    <div id="dashboard-content">
-      <div style="padding:40px; text-align:center; color:#888;">
-        <h2>Selecciona un jugador</h2>
-        <p>Haz clic en una tarjeta o en la lista para ver estadísticas avanzadas</p>
-      </div>
-    </div>
+    <div id="dashboard-content"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-  <script src="api.js"></script>
-  <script src="cards.js"></script>
-  <script src="app.js"></script>
+  <script>
+    // --- CONFIGURACIÓN ---
+    // SUSTITUYE ESTA URL por la que te dio Google al "Implementar" (debe terminar en /exec)
+    const SCRIPT_URL = "AKfycbxLNXXW8kKB6bOPUzPhAZLkLeOahghfAO_29N2xaUgoifB36VJpsJMVFSgWE9NB7Plm"; 
+
+    window.playersList = [];
+
+    async function cargarDatos() {
+      const dash = document.getElementById('dashboard-content');
+      dash.innerHTML = '<div class="loading-msg">CONECTANDO CON EL NEXO...</div>';
+      
+      try {
+        const res = await fetch(SCRIPT_URL);
+        const data = await res.json();
+        window.playersList = data;
+        
+        if (data.length > 0) {
+          renderCards();
+          renderList();
+          initSwiper();
+          dash.innerHTML = '<h2 style="text-align:center">Selecciona un jugador</h2>';
+        } else {
+          dash.innerHTML = '<h2 style="color:red; text-align:center">No se encontraron datos en el Excel</h2>';
+        }
+      } catch (e) {
+        console.error(e);
+        dash.innerHTML = '<h2 style="color:red; text-align:center">Error de Conexión</h2><p style="text-align:center">Asegúrate de que la Web App en Google esté como "Cualquier persona".</p>';
+      }
+    }
+
+    function renderCards() {
+      const container = document.getElementById('player-cards-container');
+      container.innerHTML = window.playersList.map(p => {
+        const champ = (p.CampeonFavorito || "").replace(/\s+/g, '');
+        const bg = champ ? `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ}_0.jpg` : '';
+        return `
+          <div class="swiper-slide">
+            <div class="player-card" style="background-image: url('${bg}')" data-name="${p.Nombre}">
+              <div class="card-main">
+                <div class="player-name">${p.Nombre} <small>#${p.Tag || ''}</small></div>
+                <div class="player-rank">${p.Rango || 'Unranked'}</div>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderList() {
+      const list = document.getElementById('players-list');
+      list.innerHTML = window.playersList.map(p => `
+        <div class="player-row" data-name="${p.Nombre}">
+          <strong>${p.Nombre}</strong> - ${p.Rango} (${p.PorcentajeVictorias || '0%'} WR)
+        </div>
+      `).join('');
+    }
+
+    function initSwiper() {
+      new Swiper('.mySwiper', {
+        slidesPerView: 'auto',
+        spaceBetween: 30,
+        centeredSlides: true,
+        pagination: { el: '.swiper-pagination', clickable: true },
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-name]');
+      if (!el) return;
+      
+      const p = window.playersList.find(x => x.Nombre === el.dataset.name);
+      if (p) {
+        document.getElementById('dashboard-content').innerHTML = `
+          <div style="border: 1px solid var(--hextech-gold); padding: 20px; border-radius: 15px; background: #0b0f14;">
+            <h2 style="color:var(--hextech-gold); margin:0;">${p.Nombre}</h2>
+            <p>Puntos de Liga: ${p.LP || 0} | Victorias: ${p.Victorias || 0}</p>
+            <div style="display:flex; gap:10px;">
+               <div style="background:#1a1f27; padding:10px; border-radius:5px; flex:1">Winrate: ${p.PorcentajeVictorias}</div>
+               <div style="background:#1a1f27; padding:10px; border-radius:5px; flex:1">Favorito: ${p.CampeonFavorito}</div>
+            </div>
+          </div>`;
+      }
+    });
+
+    window.onload = cargarDatos;
+  </script>
 </body>
 </html>
