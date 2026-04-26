@@ -1,12 +1,10 @@
-function doGet() {
-  return HtmlService.createTemplateFromFile('index')
-    .evaluate()
-    .setTitle('LOL Tracker')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-}
-
-function include(filename) {
-  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+// Code.gs
+function doGet(e) {
+  const datos = obtenerDatosJugadores();
+  
+  // Esto permite que GitHub Pages pueda leer los datos (evita error de CORS)
+  return ContentService.createTextOutput(JSON.stringify(datos))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function obtenerDatosJugadores() {
@@ -24,14 +22,14 @@ function obtenerDatosJugadores() {
   return filas.map(fila => {
     const obj = {};
     encabezados.forEach((encabezado, i) => {
-      // Limpiamos los nombres de los encabezados para que funcionen bien en JavaScript
-      // "%Victorias" se convierte en "PorcentajeVictorias"
-      // "Campeon Favorito" se convierte en "CampeonFavorito"
       const key = encabezado.replace('%', 'Porcentaje').replace(' ', ''); 
       obj[key] = fila[i];
     });
     return obj;
   });
+}
+
+// Mantén tu función de actualizarDatosDesdeRiot aquí abajo si la usas
 
 
   return jugadores;
