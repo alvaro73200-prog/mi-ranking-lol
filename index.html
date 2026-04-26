@@ -1,30 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <base target="_top">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOL Tracker</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 
-  <?!= include('styles'); ?>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="app">
-    
-    <!-- TÍTULO PREMIUM HEXTECH -->
     <div class="header-title">
       <h1>LOL TRACKER</h1>
       <div class="hextech-glow">LAN</div>
     </div>
 
-    <!-- CARRUSEL -->
     <div class="swiper mySwiper">
       <div class="swiper-wrapper" id="player-cards-container"></div>
       <div class="swiper-pagination"></div>
     </div>
 
-    <!-- LISTA DE JUGADORES -->
     <div class="players-list-section">
       <h3 class="section-title">Jugadores</h3>
       <div id="players-list"></div>
@@ -35,20 +32,10 @@
     </div>
   </div>
 
-  <!-- CORRECTO: Las etiquetas script están separadas de los includes -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-  <script>
-  <?!= include('api'); ?>
-</script>
-
-<script>
-  <?!= include('cards'); ?>
-</script>
-
-<script>
-  <?!= include('app'); ?>
-</script>
-
+  <script src="api.js"></script>
+  <script src="cards.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
